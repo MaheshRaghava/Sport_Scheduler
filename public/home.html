@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sport Scheduler</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      padding: 20px 60px;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 100;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(10px);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      font-size: 2.2rem; /* increased size */
+      font-weight: bold;
+      color: #fff;
+    }
+
+    .logo img {
+      height: 80px;
+      width: 80px;
+      border-radius: 50%;
+      margin-right: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    }
+
+    /* Hero Section */
+    .hero {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 0 20px;
+      background: rgba(0,0,0,0.3);
+      position: relative;
+      backdrop-filter: blur(8px);
+    }
+    
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      animation: fadeIn 1.2s ease-in-out forwards;
+    }
+
+    .hero h1 {
+      font-size: 3.5rem;
+      margin-bottom: 20px;
+      text-shadow: 0 4px 14px rgba(0,0,0,0.7);
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      margin-bottom: 30px;
+      line-height: 1.6;
+      color: #ddd;
+    }
+
+    .btns .get-started-btn {
+      padding: 18px 48px;
+      border-radius: 50px;
+      background: #1db954;
+      text-decoration: none;
+      font-weight: 600;
+      color: white;
+      transition: 0.3s;
+      font-size: 1.3rem;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+    }
+
+    .btns .get-started-btn:hover {
+      background: #17a44b;
+      transform: translateY(-5px);
+    }
+
+    /* Why Choose Section */
+    .why {
+      padding: 80px 60px;
+      text-align: center;
+      background: rgba(0,0,0,0.3);
+      backdrop-filter: blur(8px);
+    }
+
+    .why h2 {
+      font-size: 2.8rem;
+      margin-bottom: 15px;
+      color: #1db954;
+    }
+
+    .why p {
+      font-size: 1.2rem;
+      margin-bottom: 60px;
+      color: #ddd;
+    }
+
+    .features {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 30px;
+    }
+
+    .feature-card {
+      background: rgba(255,255,255,0.08);
+      border-radius: 20px;
+      padding: 40px 30px;
+      width: 300px;
+      text-align: center;
+      transition: transform 0.4s ease;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+      backdrop-filter: blur(10px);
+    }
+
+    .feature-card:hover {
+      animation: shake3d 0.6s ease;
+    }
+
+    .feature-icon {
+      font-size: 3rem;
+      margin-bottom: 20px;
+      display: inline-block;
+      background: #1db954;
+      color: white;
+      padding: 20px;
+      border-radius: 50%;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+    }
+
+    .feature-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+      color: #fff;
+    }
+
+    .feature-card p {
+      font-size: 1rem;
+      color: #ccc;
+      line-height: 1.6;
+    }
+
+    /* Shake Animation */
+    @keyframes shake3d {
+      0% { transform: rotateY(0deg) rotateX(0deg); }
+      25% { transform: rotateY(8deg) rotateX(-5deg); }
+      50% { transform: rotateY(-8deg) rotateX(5deg); }
+      75% { transform: rotateY(5deg) rotateX(-3deg); }
+      100% { transform: rotateY(0deg) rotateX(0deg); }
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 25px;
+      background: rgba(0,0,0,0.7);
+      font-size: 0.9rem;
+      color: #aaa;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(30px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      header {
+        padding: 15px 30px;
+      }
+      .logo {
+        font-size: 1.8rem;
+      }
+      .logo img {
+        height: 45px;
+        width: 45px;
+      }
+      .hero h1 {
+        font-size: 2.3rem;
+      }
+      .hero p {
+        font-size: 1rem;
+      }
+      .btns a {
+        padding: 10px 24px;
+        font-size: 1rem;
+      }
+      .features {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">
+      <img src="https://i.pinimg.com/736x/95/d0/28/95d028d025dce543f046ee4468f3fbcc.jpg" alt="Logo">
+      Sport Scheduler
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Schedule Your Game, Anytime</h1>
+      <p>Manage sports sessions, connect with players, and experience the next level of organized sports with Sport Scheduler.</p>
+      <div class="btns">
+        <a href="login.html" class="get-started-btn">Get Started</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="why">
+    <h2>Why Choose Sport Scheduler?</h2>
+    <p>Our platform makes it easier for players and organizers to come together. No more confusion—just organized sports for everyone.</p>
+
+    <div class="features">
+      <div class="feature-card">
+        <div class="feature-icon">🏀</div>
+        <h3>Create Sessions</h3>
+        <p>Easily set up sports sessions with details like sport type, venue, time, and number of players needed.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🔍</div>
+        <h3>Find Games</h3>
+        <p>Browse available sessions in your area and join with just a click. Never miss a game again.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">👥</div>
+        <h3>Manage Players</h3>
+        <p>Keep track of who's joining your sessions and communicate with participants effortlessly.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    © 2025 Sport Scheduler. All rights reserved.
+  </footer>
+
+</body>
+</html>

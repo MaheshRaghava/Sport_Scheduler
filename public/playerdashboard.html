@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Player Dashboard | Player Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap" />
+  <style>
+    :root {
+      --primary: #1db954;
+      --primary-dark: #17a44b;
+      --bg-dark: #0f2027;
+      --bg-mid: #203a43;
+      --bg-light: #2c5364;
+      --glass: rgba(255,255,255,0.09);
+      --glass-dark: rgba(0,0,0,0.4);
+      --shadow: 0 4px 18px rgba(0,0,0,0.24);
+    }
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, var(--bg-dark), var(--bg-mid), var(--bg-light));
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      padding: 20px 60px 20px 60px;
+      position: fixed;
+      top: 0; width: 100%;
+      z-index: 100;
+      background: var(--glass-dark);
+      backdrop-filter: blur(10px);
+      box-sizing: border-box;
+      justify-content: space-between;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      font-size: 2.2rem;
+      font-weight: bold;
+      color: #fff;
+    }
+    .logo img {
+      height: 64px;
+      width: 64px;
+      border-radius: 50%;
+      margin-right: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    }
+    .user-sec {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+      cursor: pointer;
+      user-select: none;
+    }
+    .avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: var(--primary-dark); color: #fff; font-weight: 600; font-size: 19px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: var(--shadow);
+      transition: box-shadow 0.18s;
+    }
+    .user-sec:hover .avatar {
+      box-shadow: 0 4px 24px rgba(29,185,84,0.23);
+    }
+    .user-name {
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: 0.2px;
+    }
+    /* Profile Modal */
+    .profile-modal-backdrop {
+      display: none;
+      position: fixed; z-index: 3000;
+      left: 0; top: 0; right: 0; bottom: 0;
+      background: rgba(20,30,40,0.08);
+      backdrop-filter: blur(1px);
+      justify-content: flex-end;
+      align-items: flex-start;
+    }
+    .profile-modal-backdrop.active { display: flex; }
+    .profile-modal {
+      margin-top: 90px;
+      margin-right: 70px;
+      background: rgba(35, 50, 80, 0.98);
+      border-radius: 20px;
+      box-shadow: 0 8px 36px #151e2880;
+      padding: 35px 38px 28px 38px;
+      min-width: 320px;
+      max-width: 94vw;
+      color: #fff;
+      position: relative;
+      animation: fadeInModal .23s cubic-bezier(.7,-0.08,.62,1.09);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .profile-modal .avatar {
+      width: 54px; height: 54px; font-size: 28px; margin-bottom: 8px;
+    }
+    .profile-modal .profile-name {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .profile-modal .profile-email {
+      font-size: 1.07rem;
+      color: #b8eecb;
+      margin-bottom: 19px;
+      word-break: break-all;
+    }
+    .profile-modal .profile-logout-btn {
+      width: 100%;
+      background: linear-gradient(90deg, #1db954 60%, #17a44b 100%);
+      color: #fff;
+      font-size: 1.09rem;
+      font-weight: 600;
+      padding: 13px 0;
+      border: none;
+      border-radius: 8px;
+      margin-top: 8px;
+      box-shadow: 0 2px 18px #1db95436;
+      cursor: pointer;
+      transition: background 0.17s, box-shadow 0.17s;
+      letter-spacing: 0.5px;
+    }
+    .profile-modal .profile-logout-btn:hover {
+      background: #19a347;
+      box-shadow: 0 5px 22px #1db95450;
+    }
+    .profile-modal .close-btn {
+      position: absolute;
+      top: 13px; right: 19px;
+      font-size: 28px;
+      background: none; border: none;
+      color: #1db954;
+      cursor: pointer;
+      font-weight: 700;
+      transition: color .18s;
+    }
+    .profile-modal .close-btn:hover { color: #fff; }
+    @keyframes fadeInModal {
+      from { opacity: 0; transform: translateY(30px) scale(0.98);}
+      to   { opacity: 1; transform: none;}
+    }
+    /* Main Content, Cards, Tabs, etc. (same as before) */
+    .main-content {
+      max-width: 1100px;
+      margin: 120px auto 0 auto;
+      padding: 0 10px 40px 10px;
+    }
+    .cards-row {
+      display: flex; gap: 26px; margin-bottom: 38px;
+      flex-wrap: wrap;
+    }
+    .summary-card {
+      flex: 1 1 200px;
+      background: var(--glass);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 26px 32px 17px 32px;
+      display: flex; flex-direction: column; align-items: flex-start;
+      min-width: 180px;
+      margin-bottom: 8px;
+      border: 1px solid rgba(255,255,255,0.16);
+    }
+    .summary-card .label {
+      font-size: 15px; color: #b3e9c7; font-weight: 500;
+      margin-bottom: 8px;
+    }
+    .summary-card .value {
+      font-size: 26px; font-weight: 700; color: var(--primary);
+      margin-bottom: 4px;
+    }
+    .summary-card .desc {
+      font-size: 13px; color: #ddd;
+    }
+    .tabs-row {
+      display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;
+    }
+    .tab-btn {
+      padding: 8px 28px;
+      border-radius: 12px 12px 0 0;
+      background: rgba(255,255,255,0.13);
+      border: none;
+      color: #fff;
+      font-size: 16px; font-weight: 500;
+      cursor: pointer;
+      transition: background 0.14s, color 0.14s;
+      font-family: inherit;
+      border-bottom: 2px solid transparent;
+    }
+    .tab-btn.active, .tab-btn:hover {
+      background: #fff;
+      color: var(--primary);
+      font-weight: 700;
+      border-bottom: 2.5px solid var(--primary);
+    }
+    .tab-content {
+      background: var(--glass);
+      border-radius: 0 0 18px 18px;
+      box-shadow: var(--shadow);
+      padding: 22px 13px 8px 13px;
+      min-height: 210px;
+      border: 1px solid rgba(255,255,255,0.13);
+      border-top: none;
+      margin-bottom: 28px;
+    }
+    .session-list {
+      margin: 0; padding: 0;
+    }
+    .session-card {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.13);
+      border-radius: 15px;
+      margin-bottom: 14px;
+      padding: 17px 24px;
+      box-shadow: 0 1px 8px rgba(40,60,120,0.10);
+      transition: box-shadow 0.2s;
+    }
+    .session-card:hover {
+      box-shadow: 0 4px 24px rgba(29,185,84,0.23);
+    }
+    .session-info {
+      display: flex; flex-direction: column;
+      max-width: 80vw;
+    }
+    .session-title {
+      font-size: 18px; font-weight: 700; color: var(--primary); margin-bottom: 5px;
+      letter-spacing: 0.2px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .session-date {
+      font-size: 14px; color: #a7e8c8; margin-bottom: 2px;
+    }
+    .session-meta {
+      font-size: 14px; color: #fff; margin-bottom: 2px;
+    }
+    .session-status {
+      font-size: 13px; font-weight: 600;
+      padding: 1px 11px; border-radius: 8px; margin-left: 7px;
+      background: #eaf8ec; color: var(--primary);
+      border: 1px solid #caeeca;
+      display: inline-block;
+    }
+    .session-status.cancelled {
+      background: #ffeaea; color: #ff4c4c; border: 1px solid #ffdada;
+    }
+    .session-status.joined {
+      background: #eaf8ec; color: var(--primary); border: 1px solid #caeeca;
+    }
+    .session-actions {
+      display: flex; flex-direction: column; gap: 10px; align-items: flex-end;
+      min-width: 95px;
+    }
+    .action-btn {
+      padding: 8px 21px; border-radius: 9px;
+      border: none; font-size: 15px; font-weight: 600;
+      cursor: pointer;
+      background: var(--primary); color: #fff;
+      transition: background 0.13s;
+      font-family: inherit;
+      box-shadow: 0 1px 4px rgba(29,185,84,0.19);
+    }
+    .action-btn.cancel { background: #e84b4b; }
+    .action-btn.joined, .action-btn:disabled { background: #c8e6ce; color: var(--primary); cursor: not-allowed;}
+    .action-btn.join { background: var(--primary); }
+    .action-btn:hover:not(:disabled) { filter: brightness(0.93);}
+    .session-cancel-reason {
+      font-size: 13px; color: #ff5a5a; margin-top: 3px; font-style: italic;
+    }
+    .create-session-btn {
+      margin-top: 8px; font-size: 17px; padding: 13px 0; width: 100%;
+      border-radius: 12px; background: var(--primary); color: #fff; border: none;
+      font-weight: 700; transition: background 0.15s; cursor: pointer;
+      box-shadow: 0 2px 8px rgba(29,185,84,0.12);
+    }
+    .create-session-btn:hover { background: var(--primary-dark);}
+    @media (max-width: 900px) {
+      header { padding: 14px 18px;}
+      .logo img { height: 41px; width: 41px;}
+      .logo { font-size: 1.5rem;}
+      .main-content { padding: 0 2vw 30px 2vw;}
+      .cards-row { flex-direction: column; gap: 16px;}
+      .profile-modal { margin-right: 10px; }
+    }
+    @media (max-width: 600px) {
+      header { flex-direction: column; gap: 13px; padding: 13px 3vw;}
+      .main-content { margin-top: 90px;}
+      .tab-content { padding: 8px 2vw;}
+      .summary-card { padding: 14px 17px; }
+      .avatar { width: 31px; height: 31px; font-size: 15px;}
+      .logo { font-size: 1.1rem;}
+      .profile-modal { min-width: 90vw; }
+    }
+    /* MODAL STYLES */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      left: 0; top: 0; right: 0; bottom: 0;
+      background: rgba(20,30,40,0.68);
+      backdrop-filter: blur(8px);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-backdrop.active { display: flex; }
+    .modal-content {
+      background: rgba(35, 50, 80, 0.93);
+      border-radius: 22px;
+      max-width: 420px;
+      width: 95vw;
+      margin: auto;
+      box-shadow: 0 8px 36px #151e28bb;
+      padding: 38px 34px 22px 34px;
+      color: #fff;
+      position: relative;
+      animation: fadeInModal .3s cubic-bezier(.7,-0.08,.62,1.09);
+    }
+    .modal-close {
+      position: absolute;
+      top: 18px; right: 22px;
+      font-size: 32px;
+      background: none;
+      border: none;
+      color: #1db954;
+      cursor: pointer;
+      font-weight: 700;
+      transition: color .18s;
+    }
+    .modal-close:hover { color: #fff; }
+    .modal-heading {
+      font-size: 2rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+      letter-spacing: 0.5px;
+      color: #fff;
+      text-align: center;
+    }
+    .form-group {
+      margin-bottom: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .form-row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 15px;
+    }
+    label {
+      font-size: 1.09rem;
+      color: #b8eecb;
+      font-weight: 500;
+      letter-spacing: 0.1px;
+    }
+    input, select, textarea {
+      background: rgba(255,255,255,0.13);
+      border: 1.5px solid #1db95455;
+      color: #fff;
+      border-radius: 9px;
+      padding: 12px 12px;
+      font-size: 1rem;
+      font-family: inherit;
+      outline: none;
+      transition: border 0.17s, box-shadow 0.18s;
+      box-shadow: 0 2px 13px rgba(29,185,84,0.06);
+      resize: none;
+    }
+    input:focus, select:focus, textarea:focus {
+      border: 1.5px solid #1db954;
+      box-shadow: 0 0 0 1.5px #21c46466;
+      background: rgba(35, 50, 80, 0.97);
+    }
+    select {
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg width='14' height='8' viewBox='0 0 14 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L7 7L13 1' stroke='%231db954' stroke-width='2'/%3E%3C/svg%3E%0A");
+      background-repeat: no-repeat;
+      background-position: right 15px center;
+      background-size: 18px 10px;
+      padding-right: 34px;
+    }
+    .modal-submit {
+      width: 100%;
+      background: linear-gradient(90deg, #1db954 60%, #17a44b 100%);
+      color: #fff;
+      font-size: 1.17rem;
+      font-weight: 600;
+      padding: 15px 0;
+      border: none;
+      border-radius: 9px;
+      margin-top: 15px;
+      box-shadow: 0 2px 18px #1db9544a;
+      cursor: pointer;
+      transition: background 0.17s, box-shadow 0.17s;
+      letter-spacing: 0.5px;
+    }
+    .modal-submit:hover {
+      background: #19a347;
+      box-shadow: 0 5px 22px #1db95450;
+    }
+    .player-emails-list {
+      display: flex; flex-wrap: wrap; gap: 7px;
+      margin-bottom: 7px;
+    }
+    .player-email-item {
+      background: #1db954ee;
+      color: #fff;
+      border-radius: 6px;
+      padding: 4px 11px;
+      font-size: 0.94rem;
+      margin-right: 4px;
+      display: flex; align-items: center;
+      gap: 5px;
+    }
+    .remove-player-btn {
+      background: none;
+      border: none;
+      color: #fff;
+      font-weight: bold;
+      font-size: 1.1em;
+      cursor: pointer;
+      margin-left: 3px;
+      padding: 0 2px;
+    }
+    .add-player-row {
+      display: flex; gap: 5px; margin-bottom: 10px;
+    }
+    .add-player-row input {
+      flex: 1;
+    }
+    .add-player-btn {
+      background: #1db954;
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      font-size: 16px;
+      font-weight: 600;
+      padding: 4px 14px;
+      cursor: pointer;
+      margin-left: 2px;
+      transition: background 0.17s;
+    }
+    .add-player-btn:hover { background: #17a44b; }
+    @media (max-width: 500px) {
+      .modal-content { padding: 17px 7vw 17px 7vw;}
+      .form-row { flex-direction: column; gap: 7px;}
+      .modal-heading { font-size: 1.2rem;}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <img src="https://i.pinimg.com/736x/95/d0/28/95d028d025dce543f046ee4468f3fbcc.jpg" alt="Logo">
+      Player Dashboard
+    </div>
+    <div class="user-sec" id="user-sec" onclick="toggleProfileModal()">
+      <div class="avatar" id="player-avatar">?</div>
+      <span class="user-name" id="player-name">...</span>
+    </div>
+  </header>
+  <!-- Profile Modal -->
+  <div class="profile-modal-backdrop" id="profile-modal-backdrop" onclick="closeProfileModal(event)">
+    <div class="profile-modal" id="profile-modal" onclick="event.stopPropagation()">
+      <button class="close-btn" onclick="closeProfileModal(event)">&times;</button>
+      <div class="avatar" id="profile-avatar">?</div>
+      <div class="profile-name" id="profile-name">...</div>
+      <div class="profile-email" id="profile-email">...</div>
+      <button class="profile-logout-btn" onclick="signOut()">Logout</button>
+    </div>
+  </div>
+  <div class="main-content">
+    <!-- Summary cards -->
+    <div class="cards-row">
+      <div class="summary-card">
+        <span class="label">Sessions Created</span>
+        <span class="value" id="sessions-created-count">0</span>
+        <span class="desc">You created</span>
+      </div>
+      <div class="summary-card">
+        <span class="label">Sessions Joined</span>
+        <span class="value" id="sessions-joined-count">0</span>
+        <span class="desc">You joined</span>
+      </div>
+      <div class="summary-card">
+        <span class="label">Next Match</span>
+        <span class="value" id="next-match">—</span>
+        <span class="desc" id="next-match-date"></span>
+      </div>
+    </div>
+    <!-- Tabs -->
+    <div class="tabs-row">
+      <button class="tab-btn active" onclick="showTab('created')">My Sessions</button>
+      <button class="tab-btn" onclick="showTab('joined')">Joined Sessions</button>
+      <button class="tab-btn" onclick="showTab('available')">Available Sessions</button>
+    </div>
+    <!-- Tab Content -->
+    <div class="tab-content" id="tab-created">
+      <ol class="session-list" id="created-sessions-list"></ol>
+      <button class="create-session-btn" onclick="openSessionModal()">+ Create New Session</button>
+    </div>
+    <div class="tab-content" style="display:none" id="tab-joined">
+      <ol class="session-list" id="joined-sessions-list"></ol>
+    </div>
+    <div class="tab-content" style="display:none" id="tab-available">
+      <ol class="session-list" id="available-sessions-list"></ol>
+    </div>
+  </div>
+  <!-- Modal Backdrop for Create Session -->
+  <div class="modal-backdrop" id="session-modal-backdrop" style="display:none;">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeSessionModal()">&times;</button>
+      <h2 class="modal-heading">Create New Session</h2>
+      <form id="create-session-form" autocomplete="off">
+        <div class="form-group">
+          <label for="sport">Sport</label>
+          <select id="sport" required>
+            <option value="">Select a sport</option>
+            <option value="Football">Football</option>
+            <option value="Basketball">Basketball</option>
+            <option value="Badminton">Badminton</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="venue">Venue</label>
+          <input type="text" id="venue" placeholder="Enter venue location" required />
+        </div>
+        <div class="form-group">
+          <label>Team 1 Players</label>
+          <div class="player-emails-list" id="team1-list"></div>
+          <div class="add-player-row">
+            <input type="email" id="team1-input" placeholder="Enter player email" />
+            <button type="button" class="add-player-btn" onclick="addPlayer('team1')">+</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Team 2 Players</label>
+          <div class="player-emails-list" id="team2-list"></div>
+          <div class="add-player-row">
+            <input type="email" id="team2-input" placeholder="Enter player email" />
+            <button type="button" class="add-player-btn" onclick="addPlayer('team2')">+</button>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="flex:1;">
+            <label for="date">Date</label>
+            <input type="date" id="date" required min="" />
+          </div>
+          <div class="form-group" style="flex:1;">
+            <label for="time">Time</label>
+            <input type="time" id="time" required min="" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="additional-players">Additional Players Needed</label>
+          <input type="number" id="additional-players" min="0" placeholder="How many more players do you need?" required />
+        </div>
+        <div class="form-group">
+          <label for="description">Description (Optional)</label>
+          <textarea id="description" rows="3" placeholder="Add any additional details about the session..."></textarea>
+        </div>
+        <button class="modal-submit" type="submit">Create Session</button>
+      </form>
+    </div>
+  </div>
+  <script>
+    // Real User Info from localStorage (set on login)
+    let user = JSON.parse(localStorage.getItem('currentUser')) || {};
+
+    function fillUserInfo() {
+      if (!user || !user.fullname || !user.email) {
+        window.location.href = "/login.html";
+        return;
+      }
+      const initial = user.fullname.charAt(0).toUpperCase();
+      document.getElementById("player-avatar").textContent = initial;
+      document.getElementById("player-name").textContent = user.fullname;
+      document.getElementById("profile-avatar").textContent = initial;
+      document.getElementById("profile-name").textContent = user.fullname;
+      document.getElementById("profile-email").textContent = user.email;
+    }
+    fillUserInfo();
+
+    // Tab logic
+    function showTab(tab) {
+      ['created','joined','available'].forEach(t => {
+        document.getElementById('tab-'+t).style.display = t===tab ? '' : 'none';
+        document.querySelectorAll('.tab-btn').forEach((btn,idx) => {
+          btn.classList.toggle('active', (tab==='created' && idx===0) || (tab==='joined' && idx===1) || (tab==='available' && idx===2));
+        });
+      });
+    }
+
+    // Dummy session data (replace with your backend)
+    const sessions = [];
+
+    function updateSessionCounters() {
+      document.getElementById('sessions-created-count').textContent = sessions.filter(s => s.createdByYou).length;
+      document.getElementById('sessions-joined-count').textContent = sessions.filter(s => s.joined && !s.createdByYou).length;
+    }
+
+    function renderSessions() {
+      // Created sessions
+      const created = sessions.filter(s => s.createdByYou);
+      document.getElementById('created-sessions-list').innerHTML = created.map(s => `
+        <li class="session-card">
+          <div class="session-info">
+            <div class="session-title">${s.sport}
+              ${s.cancelled ? `<span class="session-status cancelled">Cancelled</span>` : ''}
+            </div>
+            <div class="session-date">${formatDate(s.date)}</div>
+            <div class="session-meta"><b>Venue:</b> ${s.venue}</div>
+            <div class="session-meta"><b>Teams:</b> ${s.team1.join(', ')} vs ${s.team2.join(', ')}</div>
+            <div class="session-meta"><b>Looking for:</b> ${s.additionalPlayers} more player(s)</div>
+            <div class="session-meta"><b>Joined Players:</b> ${s.joinedPlayers.join(', ')}</div>
+            ${s.cancelled && s.cancelReason ? `<div class="session-cancel-reason"><b>Cancel Reason:</b> ${s.cancelReason}</div>` : ''}
+          </div>
+          <div class="session-actions">
+            ${!s.cancelled ? `<button class="action-btn cancel" onclick="alert('Cancel session')">Cancel</button>` : ''}
+          </div>
+        </li>
+      `).join('');
+      // Joined sessions
+      const joined = sessions.filter(s => s.joined && !s.createdByYou);
+      document.getElementById('joined-sessions-list').innerHTML = joined.map(s => `
+        <li class="session-card">
+          <div class="session-info">
+            <div class="session-title">${s.sport}
+              <span class="session-status joined">Joined</span>
+            </div>
+            <div class="session-date">${formatDate(s.date)}</div>
+            <div class="session-meta"><b>Venue:</b> ${s.venue}</div>
+            <div class="session-meta"><b>Teams:</b> ${s.team1.join(', ')} vs ${s.team2.join(', ')}</div>
+            <div class="session-meta"><b>Looking for:</b> ${s.additionalPlayers} more player(s)</div>
+            <div class="session-meta"><b>Joined Players:</b> ${s.joinedPlayers.join(', ')}</div>
+          </div>
+          <div class="session-actions">
+            <button class="action-btn joined" disabled>Joined</button>
+          </div>
+        </li>
+      `).join('');
+      // Available sessions
+      const available = sessions.filter(s => !s.cancelled && !s.joined && !s.createdByYou);
+      document.getElementById('available-sessions-list').innerHTML = available.map(s => `
+        <li class="session-card">
+          <div class="session-info">
+            <div class="session-title">${s.sport}</div>
+            <div class="session-date">${formatDate(s.date)}</div>
+            <div class="session-meta"><b>Venue:</b> ${s.venue}</div>
+            <div class="session-meta"><b>Teams:</b> ${s.team1.join(', ')} vs ${s.team2.join(', ')}</div>
+            <div class="session-meta"><b>Looking for:</b> ${s.additionalPlayers} more player(s)</div>
+            <div class="session-meta"><b>Joined Players:</b> ${s.joinedPlayers.join(', ')}</div>
+          </div>
+          <div class="session-actions">
+            <button class="action-btn join" onclick="alert('Join session')">Join</button>
+          </div>
+        </li>
+      `).join('');
+      // Next match logic
+      const upcoming = sessions.filter(s => new Date(s.date) > new Date() && (s.createdByYou || s.joined));
+      if(upcoming.length) {
+        const next = upcoming.sort((a,b) => new Date(a.date)-new Date(b.date))[0];
+        document.getElementById('next-match').textContent = next.sport;
+        document.getElementById('next-match-date').textContent = formatDate(next.date);
+      } else {
+        document.getElementById('next-match').textContent = "—";
+        document.getElementById('next-match-date').textContent = "";
+      }
+      updateSessionCounters();
+    }
+
+    function formatDate(dtStr) {
+      const dt = new Date(dtStr);
+      return dt.toLocaleString('en-IN', {
+        day: '2-digit', month: 'short', year: '2-digit', hour: '2-digit', minute: '2-digit'
+      });
+    }
+
+    // MODAL LOGIC
+    let team1Emails = [], team2Emails = [];
+
+    function openSessionModal() {
+      // Set min date to today
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      document.getElementById('date').min = `${yyyy}-${mm}-${dd}`;
+      document.getElementById('date').value = `${yyyy}-${mm}-${dd}`;
+      updateTimeMin();
+      team1Emails = []; team2Emails = [];
+      renderEmailLists();
+      document.getElementById('session-modal-backdrop').style.display = 'flex';
+      setTimeout(()=>document.getElementById('session-modal-backdrop').classList.add('active'),10);
+    }
+    function closeSessionModal() {
+      const modal = document.getElementById('session-modal-backdrop');
+      modal.classList.remove('active');
+      setTimeout(()=>{ modal.style.display='none'; }, 210);
+      document.getElementById('create-session-form').reset();
+      team1Emails = []; team2Emails = [];
+      renderEmailLists();
+    }
+    function addPlayer(team) {
+      const input = document.getElementById(team + '-input');
+      const email = input.value.trim();
+      if (!email || !/^[^@]+@[^@]+\.[^@]+$/.test(email)) { input.value=''; return; }
+      if (team === 'team1') {
+        if (!team1Emails.includes(email)) team1Emails.push(email);
+      } else {
+        if (!team2Emails.includes(email)) team2Emails.push(email);
+      }
+      input.value = '';
+      renderEmailLists();
+    }
+    function removePlayer(team, idx) {
+      if (team === 'team1') team1Emails.splice(idx, 1);
+      else team2Emails.splice(idx, 1);
+      renderEmailLists();
+    }
+    function renderEmailLists() {
+      const t1 = document.getElementById('team1-list'), t2 = document.getElementById('team2-list');
+      t1.innerHTML = team1Emails.map((e,i)=>`<span class="player-email-item">${e}<button class="remove-player-btn" type="button" onclick="removePlayer('team1',${i})">&times;</button></span>`).join('');
+      t2.innerHTML = team2Emails.map((e,i)=>`<span class="player-email-item">${e}<button class="remove-player-btn" type="button" onclick="removePlayer('team2',${i})">&times;</button></span>`).join('');
+    }
+    document.getElementById('date').addEventListener('change', updateTimeMin);
+    function updateTimeMin() {
+      const dateInput = document.getElementById('date');
+      const timeInput = document.getElementById('time');
+      const selectedDate = dateInput.value;
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      if (selectedDate === `${yyyy}-${mm}-${dd}`) {
+        // Only allow time from now onwards if today
+        const now = today.toTimeString().slice(0,5);
+        timeInput.min = now;
+      } else {
+        timeInput.min = "";
+      }
+    }
+    document.getElementById('time').addEventListener('keydown', (e) => {
+      // Block manual typing of invalid times if needed
+    });
+
+    document.getElementById('create-session-form').onsubmit = function(e){
+      e.preventDefault();
+      const sport = document.getElementById('sport').value;
+      const venue = document.getElementById('venue').value;
+      const date = document.getElementById('date').value;
+      const time = document.getElementById('time').value;
+      const additionalPlayers = document.getElementById('additional-players').value;
+      const description = document.getElementById('description').value;
+      if(!team1Emails.length || !team2Emails.length) {
+        alert("Please add at least one player to both teams (by email).");
+        return;
+      }
+      const dt = new Date(date + "T" + time);
+      const now = new Date();
+      if(dt < now) {
+        alert("Please select a future date and time.");
+        return;
+      }
+      // Save to backend here, then update UI
+      sessions.push({
+        id: Date.now(),
+        sport,
+        venue,
+        date: dt.toISOString(),
+        team1: team1Emails.slice(),
+        team2: team2Emails.slice(),
+        additionalPlayers: parseInt(additionalPlayers,10),
+        joinedPlayers: [],
+        createdByYou: true,
+        joined: false,
+        cancelled: false,
+        cancelReason: '',
+        description
+      });
+      closeSessionModal();
+      renderSessions();
+    }
+
+    // PROFILE MODAL LOGIC
+    function toggleProfileModal() {
+      const backdrop = document.getElementById('profile-modal-backdrop');
+      backdrop.classList.toggle('active');
+    }
+    function closeProfileModal(e) {
+      if (e && e.target && (e.target.id === "profile-modal-backdrop" || e.target.classList.contains('close-btn'))) {
+        document.getElementById('profile-modal-backdrop').classList.remove('active');
+      }
+    }
+    function signOut() {
+      localStorage.removeItem("currentUser");
+      window.location.href = '/login.html';
+    }
+
+    // Initial rendering
+    renderSessions();
+  </script>
+</body>
+</html>

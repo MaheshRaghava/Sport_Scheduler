@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Glassmorphic Login & Signup</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      width: 350px;
+      height: 520px;
+      perspective: 1000px;
+    }
+
+    .card {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transition: transform 0.8s;
+      transform-style: preserve-3d;
+    }
+
+    .flipped {
+      transform: rotateY(180deg);
+    }
+
+    .form-box {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      backface-visibility: hidden;
+      padding: 30px;
+      color: #fff;
+    }
+
+    .form-box h1 {
+      margin-bottom: 10px;
+      color: #1db954;
+      text-shadow: 0 0 5px rgba(0,0,0,0.5);
+    }
+
+    .tagline {
+      font-size: 15px;
+      color: #ddd;
+      margin-bottom: 15px;
+    }
+
+    .input-group {
+      position: relative;
+      width: 100%;
+      margin: 15px 0;
+    }
+
+    .glassmorphic-input {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      outline: none;
+      padding: 14px 12px;
+      width: 100%;
+      border-radius: 10px;
+      font-size: 14px;
+      color: #fff;
+      transition: border 0.3s ease;
+    }
+
+    .glassmorphic-input::placeholder {
+      color: #aaa;
+    }
+
+    .glassmorphic-input:focus {
+      border: 1px solid #1db954;
+    }
+
+    .floating-label {
+      position: absolute;
+      top: 50%;
+      left: 12px;
+      transform: translateY(-50%);
+      font-size: 14px;
+      color: #aaa;
+      pointer-events: none;
+      transition: all 0.3s ease;
+    }
+
+    .glassmorphic-input:focus + .floating-label,
+    .glassmorphic-input:not(:placeholder-shown) + .floating-label {
+      top: -8px;
+      left: 8px;
+      font-size: 12px;
+      color: #1db954;
+      background: rgba(15, 32, 39, 0.8);
+      padding: 0 4px;
+      border-radius: 4px;
+    }
+
+    .form-options {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      margin-top: 5px;
+      font-size: 13px;
+      color: #ccc;
+    }
+
+    .form-options a {
+      text-decoration: none;
+      color: #1db954;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+
+    .form-options a:hover {
+        color: #17a44b;
+    }
+
+    .glassmorphic-button {
+      margin-top: 20px;
+      padding: 14px;
+      width: 100%;
+      background: #1db954;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .glassmorphic-button:hover {
+      background: #17a44b;
+      transform: translateY(-2px);
+    }
+
+    .toggle-text {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #ccc;
+    }
+
+    .toggle-text span {
+      font-weight: bold;
+      text-decoration: underline;
+      color: #1db954;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+
+    .toggle-text span:hover {
+        color: #17a44b;
+    }
+
+    .signup-box {
+      transform: rotateY(180deg);
+    }
+
+    /* Loading animation */
+    .loading-circle {
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: none;
+    }
+
+    @keyframes spin {
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    .button-text {
+      transition: opacity 0.3s ease;
+    }
+
+    .success-message {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #1db954;
+      text-align: center;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card" id="card">
+      <!-- LOGIN -->
+      <div class="form-box login-box">
+        <h1>Player Login</h1>
+        <div class="tagline">Step in, start your game.</div>
+
+        <div class="input-group">
+          <input type="email" id="login-email" class="glassmorphic-input" placeholder="Email" required />
+          <label class="floating-label">Email</label>
+        </div>
+
+        <div class="input-group">
+          <input type="password" id="login-password" class="glassmorphic-input" placeholder="Password" required />
+          <label class="floating-label">Password</label>
+        </div>
+        
+        <div class="form-options">
+          <a href="forgotpassword.html">Forgot Password?</a>
+          <a href="adminlogin.html">Admin Login</a>
+        </div>
+
+        <button class="glassmorphic-button" onclick="login()">
+          <span class="button-text">Sign In</span>
+          <div class="loading-circle" id="login-loading"></div>
+        </button>
+        <div class="toggle-text">
+          Don't have an account? <span onclick="flipCard()">Sign Up</span>
+        </div>
+      </div>
+
+      <!-- SIGNUP -->
+      <div class="form-box signup-box">
+        <h1>Player Sign Up</h1>
+        <div class="tagline">Join & start playing.</div>
+
+        <div class="input-group">
+          <input type="text" id="signup-fullname" class="glassmorphic-input" placeholder="Full Name" required />
+          <label class="floating-label">Full Name</label>
+        </div>
+
+        <div class="input-group">
+          <input type="email" id="signup-email" class="glassmorphic-input" placeholder="Email" required />
+          <label class="floating-label">Email</label>
+        </div>
+
+        <div class="input-group">
+          <input type="password" id="signup-password" class="glassmorphic-input" placeholder="Password" required />
+          <label class="floating-label">Password</label>
+        </div>
+
+        <button class="glassmorphic-button" onclick="signup()">
+          <span class="button-text">Register</span>
+          <div class="loading-circle" id="signup-loading"></div>
+        </button>
+        <div class="toggle-text">
+          Already have an account? <span onclick="flipCard()">Login</span>
+        </div>
+        <div id="signup-success" class="success-message">Signup successful, verification email sent</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function flipCard() {
+      const card = document.getElementById('card');
+      card.classList.toggle('flipped');
+    }
+
+    async function signup() {
+      const fullname = document.getElementById('signup-fullname').value;
+      const email = document.getElementById('signup-email').value;
+      const password = document.getElementById('signup-password').value;
+      const successDiv = document.getElementById('signup-success');
+      const buttonText = document.querySelector('#signup-loading').previousElementSibling;
+      const loadingCircle = document.getElementById('signup-loading');
+      const signupButton = document.querySelector('.signup-box .glassmorphic-button');
+      
+      // Hide any previous messages
+      successDiv.style.display = 'none';
+      
+      // Show loading animation
+      buttonText.style.opacity = '0';
+      loadingCircle.style.display = 'block';
+      signupButton.disabled = true;
+
+      try {
+        const res = await fetch('/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fullname, email, password })
+        });
+
+        const data = await res.json();
+
+        // Hide loading animation
+        buttonText.style.opacity = '1';
+        loadingCircle.style.display = 'none';
+        signupButton.disabled = false;
+
+        if (res.status === 200) {
+          // Save email in localStorage for verification page
+          localStorage.setItem('verifyEmail', email);
+
+          // Show success message
+          successDiv.style.display = 'block';
+          successDiv.textContent = data.message || 'Signup successful, verification email sent';
+
+          // Hide form elements
+          document.querySelectorAll('.signup-box .input-group, .signup-box .toggle-text').forEach(el => {
+            el.style.display = 'none';
+          });
+          
+          // Change button text and disable it
+          buttonText.textContent = 'Success!';
+          signupButton.style.background = '#17a44b';
+          signupButton.disabled = true;
+
+          setTimeout(() => { window.location.href = '/verify-email'; }, 1500);
+        } else {
+          // Server handles error messaging
+          alert(data.message || 'An error occurred during signup');
+        }
+      } catch(err) {
+        // Hide loading animation
+        buttonText.style.opacity = '1';
+        loadingCircle.style.display = 'none';
+        signupButton.disabled = false;
+        
+        alert('Server error. Try again later.');
+      }
+    }
+
+    async function login() {
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      const buttonText = document.querySelector('#login-loading').previousElementSibling;
+      const loadingCircle = document.getElementById('login-loading');
+      const loginButton = document.querySelector('.login-box .glassmorphic-button');
+      
+      // Show loading animation
+      buttonText.style.opacity = '0';
+      loadingCircle.style.display = 'block';
+      loginButton.disabled = true;
+
+      try {
+        const res = await fetch('/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+        
+        // Hide loading animation
+        buttonText.style.opacity = '1';
+        loadingCircle.style.display = 'none';
+        loginButton.disabled = false;
+        
+        if (res.status === 200) {
+          // Save user info to localStorage for use on dashboard
+          localStorage.setItem('currentUser', JSON.stringify({
+            fullname: data.user.fullname,
+            email: email
+          }));
+          // Redirect to dashboard on successful login
+          window.location.href = '/playerdashboard.html';
+        } else {
+          // Server handles error messaging
+          alert(data.message || 'An error occurred during login');
+        }
+      } catch(err) {
+        // Hide loading animation
+        buttonText.style.opacity = '1';
+        loadingCircle.style.display = 'none';
+        loginButton.disabled = false;
+        
+        alert('Server error. Try again later.');
+      }
+    }
+  </script>
+</body>
+</html>

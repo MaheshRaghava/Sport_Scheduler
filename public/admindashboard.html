@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Dashboard | Sport Scheduler</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    :root {
+      --primary: #1db954;
+      --primary-dark: #17a44b;
+      --glass: rgba(255,255,255,0.09);
+      --glass-dark: rgba(0,0,0,0.4);
+      --shadow: 0 4px 18px rgba(0,0,0,0.24);
+      --bg-dark: #0f2027;
+      --bg-mid: #203a43;
+      --bg-light: #2c5364;
+      --card-bg: rgba(30, 50, 60, 0.92);
+      --border: #14532d;
+    }
+    body {
+      font-family: "Poppins", Arial, sans-serif;
+      margin: 0;
+      background: linear-gradient(135deg, var(--bg-dark), var(--bg-mid), var(--bg-light));
+      color: #fff;
+      min-height: 100vh;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 22px 60px 18px 60px;
+      background: var(--glass-dark);
+      border-bottom: 1.5px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 20px 0 rgba(20,40,30,.11);
+      backdrop-filter: blur(8px);
+    }
+    .logo-admin {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: 0.5px;
+    }
+    .logo-admin i {
+      font-size: 2.2rem;
+      color: var(--primary);
+    }
+    .admin-info {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+    }
+    .admin-badge {
+      background: var(--primary-dark);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 12px;
+      padding: 3.5px 18px;
+      letter-spacing: 1.2px;
+      margin-right: 10px;
+    }
+    .logout-btn {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      transition: color 0.17s;
+    }
+    .logout-btn:hover { color: #ff8181; }
+    .main-content {
+      max-width: 1250px;
+      margin: 40px auto 0 auto;
+      padding: 0 16px 50px 16px;
+    }
+    .stats-row {
+      display: flex;
+      gap: 28px;
+      margin-bottom: 33px;
+      flex-wrap: wrap;
+    }
+    .stat-card {
+      flex: 1 1 200px;
+      background: var(--card-bg);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 26px 32px 21px 32px;
+      min-width: 180px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      border: 1.5px solid var(--border);
+    }
+    .stat-icon {
+      background: #1db95433;
+      color: var(--primary);
+      border-radius: 12px;
+      padding: 18px 17px;
+      font-size: 2.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
+    }
+    .stat-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .stat-label {
+      font-size: 1rem;
+      color: #b8eecb;
+      font-weight: 500;
+      margin-bottom: 3px;
+    }
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .tabs-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 24px;
+      margin-top: 18px;
+    }
+    .tab-btn {
+      padding: 9px 32px;
+      border-radius: 12px 12px 0 0;
+      background: rgba(255,255,255,0.13);
+      border: none;
+      color: #b8eecb;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.14s, color 0.14s;
+      font-family: inherit;
+      border-bottom: 2px solid transparent;
+    }
+    .tab-btn.active, .tab-btn:hover {
+      background: #fff;
+      color: var(--primary);
+      font-weight: 700;
+      border-bottom: 2.5px solid var(--primary);
+    }
+    .tab-content {
+      background: var(--card-bg);
+      border-radius: 0 0 18px 18px;
+      box-shadow: var(--shadow);
+      padding: 30px 22px 18px 22px;
+      border: 1.5px solid var(--border);
+      border-top: none;
+      margin-bottom: 28px;
+    }
+    /* Sports Management */
+    .sports-mgmt-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      color: #fff;
+    }
+    .add-sport-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 22px;
+      align-items: center;
+    }
+    .add-sport-row input {
+      flex: 1;
+      padding: 12px 12px;
+      border-radius: 9px;
+      border: 1.5px solid var(--primary-dark);
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+      transition: border 0.17s;
+    }
+    .add-sport-row input:focus {
+      border: 1.5px solid #fff;
+      background: #183029;
+    }
+    .add-sport-btn {
+      background: var(--primary);
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 9px;
+      padding: 13px 26px;
+      cursor: pointer;
+      transition: background 0.17s;
+      margin-left: 5px;
+    }
+    .add-sport-btn:hover { background: var(--primary-dark);}
+    .sports-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .sport-item {
+      background: rgba(255,255,255,0.08);
+      border-radius: 11px;
+      padding: 17px 20px 17px 17px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1.2px solid var(--primary-dark);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    }
+    .sport-info {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+    }
+    .sport-icon {
+      background: #1db95433;
+      color: var(--primary);
+      border-radius: 11px;
+      padding: 10px 11px;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .sport-details {
+      display: flex;
+      flex-direction: column;
+    }
+    .sport-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 2px;
+      color: #fff;
+    }
+    .sport-meta {
+      font-size: 0.98rem;
+      color: #b8eecb;
+    }
+    .sport-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .sport-status {
+      background: #0bbd5c33;
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 14px;
+      border-radius: 7px;
+      padding: 3px 17px;
+      margin-right: 6px;
+      border: none;
+      outline: none;
+    }
+    .edit-btn, .delete-btn {
+      background: none;
+      border: none;
+      color: #b8eecb;
+      font-size: 1.15rem;
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+    .edit-btn:hover { color: var(--primary); }
+    .delete-btn:hover { color: #ff8181; }
+    /* Create Session Modal (use playerdashboard style) */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      left: 0; top: 0; right: 0; bottom: 0;
+      background: rgba(20,30,40,0.68);
+      backdrop-filter: blur(8px);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-backdrop.active { display: flex; }
+    .modal-content {
+      background: var(--card-bg);
+      border-radius: 22px;
+      max-width: 420px;
+      width: 95vw;
+      margin: auto;
+      box-shadow: 0 8px 36px #151e28bb;
+      padding: 38px 34px 22px 34px;
+      color: #fff;
+      position: relative;
+      animation: fadeInModal .3s cubic-bezier(.7,-0.08,.62,1.09);
+    }
+    @keyframes fadeInModal {
+      from { opacity: 0; transform: translateY(40px) scale(0.98);}
+      to   { opacity: 1; transform: none;}
+    }
+    .modal-close {
+      position: absolute;
+      top: 18px; right: 22px;
+      font-size: 32px;
+      background: none;
+      border: none;
+      color: var(--primary);
+      cursor: pointer;
+      font-weight: 700;
+      transition: color .18s;
+    }
+    .modal-close:hover { color: #fff; }
+    .modal-heading {
+      font-size: 2rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+      letter-spacing: 0.5px;
+      color: #fff;
+      text-align: center;
+    }
+    .form-group {
+      margin-bottom: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .form-row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 15px;
+    }
+    label {
+      font-size: 1.09rem;
+      color: #b8eecb;
+      font-weight: 500;
+      letter-spacing: 0.1px;
+    }
+    input, select, textarea {
+      background: rgba(255,255,255,0.13);
+      border: 1.5px solid #1db95455;
+      color: #fff;
+      border-radius: 9px;
+      padding: 12px 12px;
+      font-size: 1rem;
+      font-family: inherit;
+      outline: none;
+      transition: border 0.17s, box-shadow 0.18s;
+      box-shadow: 0 2px 13px rgba(29,185,84,0.06);
+      resize: none;
+    }
+    input:focus, select:focus, textarea:focus {
+      border: 1.5px solid #1db954;
+      box-shadow: 0 0 0 1.5px #21c46466;
+      background: rgba(35, 50, 80, 0.97);
+    }
+    .modal-submit {
+      width: 100%;
+      background: linear-gradient(90deg, #1db954 60%, #17a44b 100%);
+      color: #fff;
+      font-size: 1.17rem;
+      font-weight: 600;
+      padding: 15px 0;
+      border: none;
+      border-radius: 9px;
+      margin-top: 15px;
+      box-shadow: 0 2px 18px #1db9544a;
+      cursor: pointer;
+      transition: background 0.17s, box-shadow 0.17s;
+      letter-spacing: 0.5px;
+    }
+    .modal-submit:hover {
+      background: #19a347;
+      box-shadow: 0 5px 22px #1db95450;
+    }
+    .player-emails-list {
+      display: flex; flex-wrap: wrap; gap: 7px;
+      margin-bottom: 7px;
+    }
+    .player-email-item {
+      background: #1db954ee;
+      color: #fff;
+      border-radius: 6px;
+      padding: 4px 11px;
+      font-size: 0.94rem;
+      margin-right: 4px;
+      display: flex; align-items: center;
+      gap: 5px;
+    }
+    .remove-player-btn {
+      background: none;
+      border: none;
+      color: #fff;
+      font-weight: bold;
+      font-size: 1.1em;
+      cursor: pointer;
+      margin-left: 3px;
+      padding: 0 2px;
+    }
+    .add-player-row {
+      display: flex; gap: 5px; margin-bottom: 10px;
+    }
+    .add-player-row input {
+      flex: 1;
+    }
+    .add-player-btn {
+      background: #1db954;
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      font-size: 16px;
+      font-weight: 600;
+      padding: 4px 14px;
+      cursor: pointer;
+      margin-left: 2px;
+      transition: background 0.17s;
+    }
+    .add-player-btn:hover { background: #17a44b; }
+    @media (max-width: 1020px) {
+      .stats-row { flex-direction: column; gap: 17px;}
+      .stat-card { min-width: 120px; }
+    }
+    @media (max-width: 700px) {
+      header { padding: 16px 6vw 12px 6vw; }
+      .main-content { padding: 0 2vw 32px 2vw;}
+    }
+    @media (max-width: 500px) {
+      .modal-content { padding: 17px 7vw 17px 7vw;}
+      .form-row { flex-direction: column; gap: 7px;}
+      .modal-heading { font-size: 1.2rem;}
+      .stat-card { padding: 16px 9px 14px 9px; gap: 7px;}
+      .main-content { margin-top: 15px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo-admin">
+      <i class="fas fa-trophy"></i>
+      Admin Dashboard
+    </div>
+    <div class="admin-info">
+      <span class="admin-badge">Admin</span>
+      <button class="logout-btn" onclick="logout()">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
+  </header>
+  <div class="main-content">
+    <!-- Stats Cards -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <span class="stat-icon"><i class="fas fa-trophy"></i></span>
+        <div class="stat-info">
+          <span class="stat-label">Total Sports</span>
+          <span class="stat-value" id="stat-total-sports">0</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon"><i class="fas fa-calendar-alt"></i></span>
+        <div class="stat-info">
+          <span class="stat-label">Total Sessions</span>
+          <span class="stat-value" id="stat-total-sessions">0</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon"><i class="fas fa-users"></i></span>
+        <div class="stat-info">
+          <span class="stat-label">Active Players</span>
+          <span class="stat-value" id="stat-active-players">0</span>
+        </div>
+      </div>
+    </div>
+    <!-- Tabs -->
+    <div class="tabs-row">
+      <button class="tab-btn active" onclick="showTab('sports')">Manage Sports</button>
+      <button class="tab-btn" onclick="showTab('create')">Create Sessions</button>
+      <button class="tab-btn" onclick="showTab('joined')">Joined Sessions</button>
+    </div>
+    <!-- Manage Sports Tab -->
+    <div class="tab-content" id="tab-sports">
+      <div class="sports-mgmt-title">
+        <i class="fas fa-trophy"></i>
+        Sports Management
+      </div>
+      <div class="add-sport-row">
+        <input type="text" id="sport-input" placeholder="Enter sport name" />
+        <button class="add-sport-btn" onclick="addSport()">
+          <i class="fas fa-plus"></i> Add Sport
+        </button>
+      </div>
+      <div class="sports-list" id="sports-list">
+        <!-- Sports will be rendered here -->
+      </div>
+    </div>
+    <!-- Create Session Tab -->
+    <div class="tab-content" id="tab-create" style="display:none;">
+      <div style="font-size:1.32rem; font-weight:700; margin-bottom:18px;">Create New Session</div>
+      <button class="create-session-btn" onclick="openSessionModal()" style="margin-bottom:18px; font-size:17px; padding:13px 0; width:100%; border-radius:12px; background:var(--primary); color:#fff; border:none; font-weight:700; transition:background 0.15s; cursor:pointer; box-shadow:0 2px 8px rgba(29,185,84,0.12);">
+        + Create New Session
+      </button>
+      <div id="admin-sessions-list"></div>
+    </div>
+    <!-- Joined Sessions Tab -->
+    <div class="tab-content" id="tab-joined" style="display:none;">
+      <div style="font-size:1.22rem;font-weight:600;margin-bottom:11px;">Joined Sessions</div>
+      <div id="admin-joined-sessions"></div>
+    </div>
+  </div>
+  <!-- Modal: Create Session -->
+  <div class="modal-backdrop" id="session-modal-backdrop" style="display:none;">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeSessionModal()">&times;</button>
+      <h2 class="modal-heading">Create New Session</h2>
+      <form id="admin-create-session-form" autocomplete="off">
+        <div class="form-group">
+          <label for="admin-sport">Sport</label>
+          <select id="admin-sport" required>
+            <option value="">Select sport</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="admin-venue">Venue</label>
+          <input type="text" id="admin-venue" placeholder="Enter venue location" required />
+        </div>
+        <div class="form-group">
+          <label>Player Emails</label>
+          <div class="player-emails-list" id="admin-player-emails"></div>
+          <div class="add-player-row">
+            <input type="email" id="admin-player-input" placeholder="Enter player email" />
+            <button type="button" class="add-player-btn" onclick="addAdminPlayer()">+</button>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="flex:1;">
+            <label for="admin-date">Date</label>
+            <input type="date" id="admin-date" required min="" />
+          </div>
+          <div class="form-group" style="flex:1;">
+            <label for="admin-time">Time</label>
+            <input type="time" id="admin-time" required min="" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="admin-description">Description (Optional)</label>
+          <textarea id="admin-description" rows="2" placeholder="Add session details..."></textarea>
+        </div>
+        <button class="modal-submit" type="submit">Create Session</button>
+      </form>
+    </div>
+  </div>
+  <script>
+    // --- Data State ---
+    let sports = [];
+    let sessions = [];
+    let adminPlayerEmails = [];
+    let players = [];
+
+    // --- API Helpers ---
+    async function fetchSports() {
+      const res = await fetch('/api/sports');
+      return res.ok ? await res.json() : [];
+    }
+    async function fetchSessions() {
+      const res = await fetch('/api/sessions/admin');
+      return res.ok ? await res.json() : [];
+    }
+    async function fetchPlayers() {
+      const res = await fetch('/api/users/players');
+      return res.ok ? await res.json() : [];
+    }
+    async function fetchStats() {
+      // Stats: total sports, sessions, players
+      const [sportsArr, sessionsArr, playersArr] = await Promise.all([fetchSports(), fetchSessions(), fetchPlayers()]);
+      document.getElementById("stat-total-sports").textContent = sportsArr.length;
+      document.getElementById("stat-total-sessions").textContent = sessionsArr.length;
+      document.getElementById("stat-active-players").textContent = playersArr.length;
+    }
+
+    // --- Initial Load ---
+    async function reloadAdminData() {
+      sports = await fetchSports();
+      sessions = await fetchSessions();
+      players = await fetchPlayers();
+      renderSports();
+      renderAdminSessions();
+      renderJoinedSessions();
+      fetchStats();
+    }
+    reloadAdminData();
+
+    // Tabs
+    function showTab(tab) {
+      ["sports","create","joined"].forEach(t=>{
+        document.getElementById('tab-'+t).style.display = t===tab ? "" : "none";
+        document.querySelectorAll('.tab-btn').forEach((btn,idx)=>{
+          btn.classList.toggle('active', (tab==="sports"&&idx===0)||(tab==="create"&&idx===1)||(tab==="joined"&&idx===2));
+        });
+      });
+      if(tab==="create") renderAdminSessions();
+      if(tab==="joined") renderJoinedSessions();
+    }
+
+    // --- Sports Management ---
+    function renderSports() {
+      const sportsList = document.getElementById("sports-list");
+      sportsList.innerHTML = "";
+      sports.forEach((sport, idx) => {
+        sportsList.innerHTML += `
+          <div class="sport-item">
+            <div class="sport-info">
+              <span class="sport-icon"><i class="fas fa-wave-square"></i></span>
+              <div class="sport-details">
+                <div class="sport-name">${sport.name}</div>
+                <div class="sport-meta">${sessions.filter(s=>s.sport===sport.name).length} sessions created</div>
+              </div>
+            </div>
+            <div class="sport-actions">
+              <span class="sport-status">${sport.status||'Active'}</span>
+              <button class="edit-btn" title="Edit" onclick="editSport('${sport._id}')"><i class="fas fa-pen"></i></button>
+              <button class="delete-btn" title="Delete" onclick="deleteSport('${sport._id}')"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
+        `;
+      });
+      document.getElementById("stat-total-sports").textContent = sports.length;
+      updateAdminSportList();
+    }
+
+    async function addSport() {
+      const input = document.getElementById("sport-input");
+      const name = input.value.trim();
+      if(!name) return;
+      if(sports.some(s=>s.name.toLowerCase()===name.toLowerCase())) { alert("Sport already exists."); return; }
+      const res = await fetch('/api/sports', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ name })
+      });
+      if (res.ok) {
+        input.value = "";
+        await reloadAdminData();
+        updateAdminSportList();
+      } else {
+        const data = await res.json();
+        alert(data.message || "Error adding sport.");
+      }
+    }
+    async function editSport(id) {
+      const sport = sports.find(s=>s._id===id);
+      const newName = prompt("Edit sport name:", sport.name);
+      if(newName && newName.trim()) {
+        if(sports.some((s)=>s._id!==id&&s.name.toLowerCase()===newName.trim().toLowerCase())) { alert("Sport already exists."); return; }
+        const res = await fetch(`/api/sports/${id}`, {
+          method: 'PUT',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ name: newName.trim() })
+        });
+        if (res.ok) await reloadAdminData();
+        else alert('Error editing sport');
+      }
+    }
+    async function deleteSport(id) {
+      if(confirm("Delete this sport?")) {
+        const res = await fetch(`/api/sports/${id}`, { method: 'DELETE' });
+        if (res.ok) await reloadAdminData();
+        else alert('Error deleting sport');
+      }
+    }
+
+    function updateAdminSportList() {
+      const sel = document.getElementById("admin-sport");
+      if (!sel) return;
+      sel.innerHTML = `<option value="">Select sport</option>`;
+      sports.forEach(sport=>{
+        sel.innerHTML += `<option value="${sport.name}">${sport.name}</option>`;
+      });
+    }
+
+    // --- Create Session Modal ---
+    function openSessionModal() {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      document.getElementById('admin-date').min = `${yyyy}-${mm}-${dd}`;
+      document.getElementById('admin-date').value = `${yyyy}-${mm}-${dd}`;
+      updateTimeMin();
+      adminPlayerEmails = [];
+      renderAdminPlayerEmails();
+      updateAdminSportList();
+      document.getElementById('session-modal-backdrop').style.display = 'flex';
+      setTimeout(()=>document.getElementById('session-modal-backdrop').classList.add('active'),10);
+    }
+    function closeSessionModal() {
+      const modal = document.getElementById('session-modal-backdrop');
+      modal.classList.remove('active');
+      setTimeout(()=>{ modal.style.display='none'; }, 210);
+      document.getElementById('admin-create-session-form').reset();
+      adminPlayerEmails = [];
+      renderAdminPlayerEmails();
+    }
+    function addAdminPlayer() {
+      const input = document.getElementById("admin-player-input");
+      const email = input.value.trim();
+      if (!email || !/^[^@]+@[^@]+\.[^@]+$/.test(email) || adminPlayerEmails.includes(email)) { input.value = ""; return; }
+      adminPlayerEmails.push(email);
+      input.value = "";
+      renderAdminPlayerEmails();
+    }
+    function removeAdminPlayer(idx) {
+      adminPlayerEmails.splice(idx,1);
+      renderAdminPlayerEmails();
+    }
+    function renderAdminPlayerEmails() {
+      const list = document.getElementById("admin-player-emails");
+      list.innerHTML = adminPlayerEmails.map((e,i)=>`
+        <span class="player-email-item">${e}<button type="button" class="remove-player-btn" onclick="removeAdminPlayer(${i})">&times;</button></span>
+      `).join('');
+    }
+    document.getElementById('admin-date').addEventListener('change', updateTimeMin);
+    function updateTimeMin() {
+      const dateInput = document.getElementById('admin-date');
+      const timeInput = document.getElementById('admin-time');
+      const selectedDate = dateInput.value;
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      if (selectedDate === `${yyyy}-${mm}-${dd}`) {
+        const now = today.toTimeString().slice(0,5);
+        timeInput.min = now;
+      } else {
+        timeInput.min = "";
+      }
+    }
+
+    document.getElementById('admin-create-session-form').onsubmit = async function(e) {
+      e.preventDefault();
+      const sport = document.getElementById("admin-sport").value;
+      const venue = document.getElementById("admin-venue").value;
+      const date = document.getElementById("admin-date").value;
+      const time = document.getElementById("admin-time").value;
+      const description = document.getElementById("admin-description").value;
+      if(!sport || !venue || !date || !time || !adminPlayerEmails.length) {
+        alert("Please fill all fields and add at least one player email.");
+        return;
+      }
+      const res = await fetch('/api/sessions', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          sport,
+          venue,
+          date,
+          time,
+          playerEmails: adminPlayerEmails,
+          description,
+          createdBy: "admin"
+        })
+      });
+      if(res.ok) {
+        await reloadAdminData();
+        closeSessionModal();
+        alert("Session created. Added players will see it when they login.");
+      } else {
+        alert('Error creating session');
+      }
+    };
+
+    // --- Admin Sessions List (for Create Sessions tab) ---
+    function renderAdminSessions() {
+      document.getElementById("admin-sessions-list").innerHTML =
+        sessions.map(s=>`
+          <div style="background:rgba(255,255,255,0.10);border-radius:9px;padding:13px 18px;margin-bottom:10px;border:1px solid var(--primary-dark);">
+            <b>${s.sport}</b> @ ${s.venue}<br/>
+            <span style="color:#b8eecb;">${(new Date(s.date)).toLocaleString()}</span><br/>
+            <span style="font-size:0.98em;">Players: ${s.playerEmails.map(p=>p.email).join(', ')}</span>
+          </div>
+        `).join('') || "<div style='color:#b8eecb;'>No sessions created yet.</div>";
+    }
+
+    // --- Joined Sessions Tab (list all sessions with cancellation info) ---
+    async function renderJoinedSessions() {
+      // Fetch sessions cancelled by players
+      const res = await fetch('/api/sessions/cancelled-by-players');
+      const cancelledSessions = res.ok ? await res.json() : [];
+
+      let html = "";
+      sessions.forEach(s=>{
+        html += `<div style="background:rgba(255,255,255,0.10);border-radius:9px;padding:13px 18px;margin-bottom:10px;border:1px solid var(--primary-dark);">
+          <b>${s.sport}</b> @ ${s.venue}<br/>
+          <span style="color:#b8eecb;">${(new Date(s.date)).toLocaleString()}</span><br/>
+          <span style="font-size:0.98em;">Players: ${s.playerEmails.map(p=>p.email).join(', ')}</span>
+        `;
+        // Show cancelled info for this session if any
+        const cancelForThisSession = cancelledSessions.find(cs=>cs._id === s._id);
+        if(cancelForThisSession && cancelForThisSession.cancelledPlayers.length>0) {
+          html += `<div style="margin-top:7px;color:#ff6b6b;"><b>Cancelled by:</b> ${
+            cancelForThisSession.cancelledPlayers.map(p=>`${p.email} (${p.cancelReason||'No reason'})`).join(', ')
+          }</div>`;
+        }
+        html += `</div>`;
+      });
+      document.getElementById("admin-joined-sessions").innerHTML = html || "<div style='color:#b8eecb;'>No joined sessions yet.</div>";
+    }
+
+    function logout() {
+      if (confirm("Logout from admin dashboard?")) {
+        window.location.href = "/login.html";
+      }
+    }
+
+    // Set min date for session creation to today
+    (function setDateMin() {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      document.getElementById('admin-date').min = `${yyyy}-${mm}-${dd}`;
+      document.getElementById('admin-date').value = `${yyyy}-${mm}-${dd}`;
+    })();
+  </script>
+</body>
+</html>
