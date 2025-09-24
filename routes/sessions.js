@@ -20,4 +20,8 @@ router.get('/admin', sessionController.getAllSessions);
 // Admin: Get all sessions cancelled by players (with reasons)
 router.get('/cancelled-by-players', sessionController.getCancelledByPlayers);
 
+// --- ADDED: Edit/Delete session by id (for admin) ---
+router.put('/:id', sessionController.editSession);
+router.delete('/:id', sessionController.deleteSession);
+
 module.exports = router;

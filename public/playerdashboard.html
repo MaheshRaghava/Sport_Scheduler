@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Player Dashboard | Player Dashboard</title>
+  <title>Player Dashboard | Sport Scheduler</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <style>
     :root {
       --primary: #1db954;
@@ -15,6 +16,13 @@
       --glass: rgba(255,255,255,0.09);
       --glass-dark: rgba(0,0,0,0.4);
       --shadow: 0 4px 18px rgba(0,0,0,0.24);
+      --card-bg: rgba(30, 50, 60, 0.92);
+      --border: #14532d;
+      --error: #ff8181;
+      --success: #1db954;
+    }
+    * {
+      box-sizing: border-box;
     }
     body {
       font-family: "Poppins", sans-serif;
@@ -35,6 +43,7 @@
       backdrop-filter: blur(10px);
       box-sizing: border-box;
       justify-content: space-between;
+      border-bottom: 1.5px solid var(--border);
     }
     .logo {
       display: flex;
@@ -148,48 +157,171 @@
       from { opacity: 0; transform: translateY(30px) scale(0.98);}
       to   { opacity: 1; transform: none;}
     }
-    /* Main Content, Cards, Tabs, etc. (same as before) */
+    /* Main Content */
     .main-content {
-      max-width: 1100px;
+      max-width: 1350px;
       margin: 120px auto 0 auto;
-      padding: 0 10px 40px 10px;
+      padding: 0 16px 50px 16px;
     }
-    .cards-row {
-      display: flex; gap: 26px; margin-bottom: 38px;
+    /* Stats Cards */
+    .stats-row {
+      display: flex;
+      gap: 28px;
+      margin-bottom: 33px;
       flex-wrap: wrap;
     }
-    .summary-card {
+    .stat-card {
       flex: 1 1 200px;
-      background: var(--glass);
+      background: var(--card-bg);
       border-radius: 18px;
       box-shadow: var(--shadow);
-      padding: 26px 32px 17px 32px;
-      display: flex; flex-direction: column; align-items: flex-start;
+      padding: 26px 32px 21px 32px;
       min-width: 180px;
-      margin-bottom: 8px;
-      border: 1px solid rgba(255,255,255,0.16);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      border: 1.5px solid var(--border);
     }
-    .summary-card .label {
-      font-size: 15px; color: #b3e9c7; font-weight: 500;
-      margin-bottom: 8px;
+    .stat-icon {
+      background: #1db95433;
+      color: var(--primary);
+      border-radius: 12px;
+      padding: 18px 17px;
+      font-size: 2.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
     }
-    .summary-card .value {
-      font-size: 26px; font-weight: 700; color: var(--primary);
-      margin-bottom: 4px;
+    .stat-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
-    .summary-card .desc {
-      font-size: 13px; color: #ddd;
+    .stat-label {
+      font-size: 1rem;
+      color: #b8eecb;
+      font-weight: 500;
+      margin-bottom: 3px;
     }
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    /* Next Match Big Box */
+    .next-match-container {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 28px;
+      margin-bottom: 33px;
+    }
+    .next-match-card {
+      background: var(--card-bg);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 30px;
+      border: 1.5px solid var(--primary);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .next-match-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+    }
+    .next-match-label {
+      font-size: 1rem;
+      color: #b8eecb;
+      font-weight: 500;
+      margin-bottom: 10px;
+    }
+    .next-match-sport {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 15px;
+    }
+    .next-match-details {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .next-match-detail {
+      font-size: 1.1rem;
+      color: #fff;
+    }
+    .next-match-detail strong {
+      color: #b8eecb;
+      margin-right: 10px;
+    }
+    .no-next-match {
+      font-size: 1.2rem;
+      color: #b8eecb;
+      text-align: center;
+      padding: 20px;
+    }
+    .quick-stats-card {
+      background: var(--card-bg);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 30px;
+      border: 1.5px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .quick-stats-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .quick-stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+    .quick-stat {
+      text-align: center;
+      padding: 15px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+    }
+    .quick-stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 5px;
+    }
+    .quick-stat-label {
+      font-size: 0.9rem;
+      color: #b8eecb;
+    }
+    /* Tabs */
     .tabs-row {
-      display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;
+      display: flex;
+      gap: 10px;
+      margin-bottom: 24px;
+      margin-top: 18px;
+      flex-wrap: wrap;
     }
     .tab-btn {
-      padding: 8px 28px;
+      padding: 9px 32px;
       border-radius: 12px 12px 0 0;
       background: rgba(255,255,255,0.13);
       border: none;
-      color: #fff;
-      font-size: 16px; font-weight: 500;
+      color: #b8eecb;
+      font-size: 16px;
+      font-weight: 600;
       cursor: pointer;
       transition: background 0.14s, color 0.14s;
       font-family: inherit;
@@ -202,63 +334,83 @@
       border-bottom: 2.5px solid var(--primary);
     }
     .tab-content {
-      background: var(--glass);
+      background: var(--card-bg);
       border-radius: 0 0 18px 18px;
       box-shadow: var(--shadow);
-      padding: 22px 13px 8px 13px;
-      min-height: 210px;
-      border: 1px solid rgba(255,255,255,0.13);
+      padding: 30px 22px 18px 22px;
+      border: 1.5px solid var(--border);
       border-top: none;
       margin-bottom: 28px;
+      min-height: 120px;
+      overflow-x: auto;
     }
-    .session-list {
-      margin: 0; padding: 0;
+    /* Session Lists */
+    .manage-sessions-list, .cancelled-sessions-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
     }
-    .session-card {
-      display: flex; align-items: flex-start; justify-content: space-between;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.13);
-      border-radius: 15px;
-      margin-bottom: 14px;
-      padding: 17px 24px;
-      box-shadow: 0 1px 8px rgba(40,60,120,0.10);
-      transition: box-shadow 0.2s;
-    }
-    .session-card:hover {
-      box-shadow: 0 4px 24px rgba(29,185,84,0.23);
-    }
-    .session-info {
-      display: flex; flex-direction: column;
-      max-width: 80vw;
+    .session-box {
+      background: rgba(255,255,255,0.10);
+      border-radius: 14px;
+      padding: 18px 24px 18px 18px;
+      border: 1.5px solid var(--primary-dark);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.10);
+      margin-bottom: 5px;
+      position: relative;
+      min-width: 260px;
     }
     .session-title {
-      font-size: 18px; font-weight: 700; color: var(--primary); margin-bottom: 5px;
-      letter-spacing: 0.2px;
-      display: flex; align-items: center; gap: 8px;
+      font-size: 1.27rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 7px;
     }
-    .session-date {
-      font-size: 14px; color: #a7e8c8; margin-bottom: 2px;
+    .session-info-row {
+      margin-bottom: 3px;
+      font-size: 1.01rem;
+      color: #b8eecb;
     }
-    .session-meta {
-      font-size: 14px; color: #fff; margin-bottom: 2px;
-    }
-    .session-status {
-      font-size: 13px; font-weight: 600;
-      padding: 1px 11px; border-radius: 8px; margin-left: 7px;
-      background: #eaf8ec; color: var(--primary);
-      border: 1px solid #caeeca;
+    .session-info-row strong {
+      color: #fff;
       display: inline-block;
+      min-width: 140px;
     }
-    .session-status.cancelled {
-      background: #ffeaea; color: #ff4c4c; border: 1px solid #ffdada;
+    .session-teams-row {
+      margin-bottom: 3px;
+      font-size: 1.01rem;
+      color: #b8eecb;
     }
-    .session-status.joined {
-      background: #eaf8ec; color: var(--primary); border: 1px solid #caeeca;
+    .session-teams-row strong {
+      color: #fff;
+      display: inline-block;
+      min-width: 140px;
+    }
+    .session-description-row {
+      color: #fff;
+      margin-bottom: 2px;
+      font-size: 1.01rem;
+    }
+    .session-description-row strong {
+      color: #fff;
+      display: inline-block;
+      min-width: 140px;
     }
     .session-actions {
-      display: flex; flex-direction: column; gap: 10px; align-items: flex-end;
-      min-width: 95px;
+      position: absolute;
+      right: 18px; top: 20px;
+      display: flex; gap: 7px;
     }
+    .edit-session-btn, .delete-session-btn {
+      background: none;
+      border: none;
+      font-size: 1.19rem;
+      color: #b8eecb;
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+    .edit-session-btn:hover { color: var(--primary); }
+    .delete-session-btn:hover { color: var(--error);}
     .action-btn {
       padding: 8px 21px; border-radius: 9px;
       border: none; font-size: 15px; font-weight: 600;
@@ -272,8 +424,33 @@
     .action-btn.joined, .action-btn:disabled { background: #c8e6ce; color: var(--primary); cursor: not-allowed;}
     .action-btn.join { background: var(--primary); }
     .action-btn:hover:not(:disabled) { filter: brightness(0.93);}
+    .session-status {
+      font-size: 13px; font-weight: 600;
+      padding: 1px 11px; border-radius: 8px; margin-left: 7px;
+      background: #eaf8ec; color: var(--primary);
+      border: 1px solid #caeeca;
+      display: inline-block;
+    }
+    .session-status.cancelled {
+      background: #ffeaea; color: #ff4c4c; border: 1px solid #ffdada;
+    }
+    .session-status.joined {
+      background: #eaf8ec; color: var(--primary); border: 1px solid #caeeca;
+    }
     .session-cancel-reason {
       font-size: 13px; color: #ff5a5a; margin-top: 3px; font-style: italic;
+    }
+    .cancelled-by-row {
+      color: var(--error);
+      margin-top: 5px;
+      font-size: 0.98rem;
+      font-style: italic;
+    }
+    .cancel-reason-row {
+      color: var(--error);
+      font-size: 0.97rem;
+      margin-top: 2px;
+      font-style: italic;
     }
     .create-session-btn {
       margin-top: 8px; font-size: 17px; padding: 13px 0; width: 100%;
@@ -282,24 +459,7 @@
       box-shadow: 0 2px 8px rgba(29,185,84,0.12);
     }
     .create-session-btn:hover { background: var(--primary-dark);}
-    @media (max-width: 900px) {
-      header { padding: 14px 18px;}
-      .logo img { height: 41px; width: 41px;}
-      .logo { font-size: 1.5rem;}
-      .main-content { padding: 0 2vw 30px 2vw;}
-      .cards-row { flex-direction: column; gap: 16px;}
-      .profile-modal { margin-right: 10px; }
-    }
-    @media (max-width: 600px) {
-      header { flex-direction: column; gap: 13px; padding: 13px 3vw;}
-      .main-content { margin-top: 90px;}
-      .tab-content { padding: 8px 2vw;}
-      .summary-card { padding: 14px 17px; }
-      .avatar { width: 31px; height: 31px; font-size: 15px;}
-      .logo { font-size: 1.1rem;}
-      .profile-modal { min-width: 90vw; }
-    }
-    /* MODAL STYLES */
+    /* Modal and form scrollable styles */
     .modal-backdrop {
       display: none;
       position: fixed;
@@ -312,16 +472,23 @@
     }
     .modal-backdrop.active { display: flex; }
     .modal-content {
-      background: rgba(35, 50, 80, 0.93);
+      background: var(--card-bg);
       border-radius: 22px;
-      max-width: 420px;
-      width: 95vw;
+      max-width: 440px;
+      width: 98vw;
       margin: auto;
       box-shadow: 0 8px 36px #151e28bb;
-      padding: 38px 34px 22px 34px;
       color: #fff;
       position: relative;
+      display: flex;
+      flex-direction: column;
       animation: fadeInModal .3s cubic-bezier(.7,-0.08,.62,1.09);
+      max-height: 95vh;
+      overflow: hidden;
+    }
+    @keyframes fadeInModal {
+      from { opacity: 0; transform: translateY(40px) scale(0.98);}
+      to   { opacity: 1; transform: none;}
     }
     .modal-close {
       position: absolute;
@@ -329,10 +496,11 @@
       font-size: 32px;
       background: none;
       border: none;
-      color: #1db954;
+      color: var(--primary);
       cursor: pointer;
       font-weight: 700;
       transition: color .18s;
+      z-index: 1;
     }
     .modal-close:hover { color: #fff; }
     .modal-heading {
@@ -342,6 +510,13 @@
       letter-spacing: 0.5px;
       color: #fff;
       text-align: center;
+      margin-top: 32px;
+    }
+    .scrollable-form-area {
+      overflow-y: auto;
+      padding: 22px 34px 22px 34px;
+      flex: 1 1 auto;
+      max-height: 70vh;
     }
     .form-group {
       margin-bottom: 15px;
@@ -378,15 +553,6 @@
       box-shadow: 0 0 0 1.5px #21c46466;
       background: rgba(35, 50, 80, 0.97);
     }
-    select {
-      appearance: none;
-      -webkit-appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg width='14' height='8' viewBox='0 0 14 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L7 7L13 1' stroke='%231db954' stroke-width='2'/%3E%3C/svg%3E%0A");
-      background-repeat: no-repeat;
-      background-position: right 15px center;
-      background-size: 18px 10px;
-      padding-right: 34px;
-    }
     .modal-submit {
       width: 100%;
       background: linear-gradient(90deg, #1db954 60%, #17a44b 100%);
@@ -401,6 +567,7 @@
       cursor: pointer;
       transition: background 0.17s, box-shadow 0.17s;
       letter-spacing: 0.5px;
+      margin-bottom: 18px;
     }
     .modal-submit:hover {
       background: #19a347;
@@ -449,10 +616,36 @@
       transition: background 0.17s;
     }
     .add-player-btn:hover { background: #17a44b; }
+    @media (max-width: 1020px) {
+      .stats-row { flex-direction: column; gap: 17px;}
+      .stat-card { min-width: 120px; }
+      .next-match-container {
+        grid-template-columns: 1fr;
+      }
+    }
+    @media (max-width: 700px) {
+      header { padding: 16px 6vw 12px 6vw; }
+      .main-content { padding: 0 2vw 32px 2vw;}
+      .tabs-row {
+        overflow-x: auto;
+        padding-bottom: 10px;
+      }
+    }
     @media (max-width: 500px) {
-      .modal-content { padding: 17px 7vw 17px 7vw;}
+      .modal-content { padding: 0;}
+      .scrollable-form-area { padding: 6vw 3vw 6vw 3vw;}
       .form-row { flex-direction: column; gap: 7px;}
       .modal-heading { font-size: 1.2rem;}
+      .stat-card { padding: 16px 9px 14px 9px; gap: 7px;}
+      .main-content { margin-top: 15px; }
+      .session-actions {
+        position: static;
+        margin-top: 15px;
+        justify-content: flex-end;
+      }
+      .quick-stats-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -478,55 +671,106 @@
     </div>
   </div>
   <div class="main-content">
-    <!-- Summary cards -->
-    <div class="cards-row">
-      <div class="summary-card">
-        <span class="label">Sessions Created</span>
-        <span class="value" id="sessions-created-count">0</span>
-        <span class="desc">You created</span>
+    <!-- Stats Cards -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <span class="stat-icon"><i class="fas fa-trophy"></i></span>
+        <div class="stat-info">
+          <span class="stat-label">Created Sessions</span>
+          <span class="stat-value" id="stat-created-sessions">0</span>
+        </div>
       </div>
-      <div class="summary-card">
-        <span class="label">Sessions Joined</span>
-        <span class="value" id="sessions-joined-count">0</span>
-        <span class="desc">You joined</span>
+      <div class="stat-card">
+        <span class="stat-icon"><i class="fas fa-calendar-alt"></i></span>
+        <div class="stat-info">
+          <span class="stat-label">Joined Sessions</span>
+          <span class="stat-value" id="stat-joined-sessions">0</span>
+        </div>
       </div>
-      <div class="summary-card">
-        <span class="label">Next Match</span>
-        <span class="value" id="next-match">—</span>
-        <span class="desc" id="next-match-date"></span>
+      <div class="stat-card">
+        <span class="stat-icon"><i class="fas fa-users"></i></span>
+        <div class="stat-info">
+          <span class="stat-label">Available Sessions</span>
+          <span class="stat-value" id="stat-available-sessions">0</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon"><i class="fas fa-cog"></i></span>
+        <div class="stat-info">
+          <span class="stat-label">Manage Sessions</span>
+          <span class="stat-value" id="stat-manage-sessions">0</span>
+        </div>
       </div>
     </div>
+
+    <!-- Next Match Big Box -->
+    <div class="next-match-container">
+      <div class="next-match-card" id="next-match-card">
+        <!-- Next match content will be populated by JavaScript -->
+      </div>
+      <div class="quick-stats-card">
+        <div class="quick-stats-title">Quick Stats</div>
+        <div class="quick-stats-grid">
+          <div class="quick-stat">
+            <div class="quick-stat-number" id="quick-created">0</div>
+            <div class="quick-stat-label">Created</div>
+          </div>
+          <div class="quick-stat">
+            <div class="quick-stat-number" id="quick-joined">0</div>
+            <div class="quick-stat-label">Joined</div>
+          </div>
+          <div class="quick-stat">
+            <div class="quick-stat-number" id="quick-available">0</div>
+            <div class="quick-stat-label">Available</div>
+          </div>
+          <div class="quick-stat">
+            <div class="quick-stat-number" id="quick-cancelled">0</div>
+            <div class="quick-stat-label">Cancelled</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Tabs -->
     <div class="tabs-row">
-      <button class="tab-btn active" onclick="showTab('created')">My Sessions</button>
+      <button class="tab-btn active" onclick="showTab('create')">Create Sessions</button>
       <button class="tab-btn" onclick="showTab('joined')">Joined Sessions</button>
       <button class="tab-btn" onclick="showTab('available')">Available Sessions</button>
+      <button class="tab-btn" onclick="showTab('manage')">Manage My Sessions</button>
+      <button class="tab-btn" onclick="showTab('cancelled')">Cancelled Sessions</button>
     </div>
-    <!-- Tab Content -->
-    <div class="tab-content" id="tab-created">
-      <ol class="session-list" id="created-sessions-list"></ol>
+    <!-- Create Session Tab -->
+    <div class="tab-content" id="tab-create">
       <button class="create-session-btn" onclick="openSessionModal()">+ Create New Session</button>
     </div>
-    <div class="tab-content" style="display:none" id="tab-joined">
-      <ol class="session-list" id="joined-sessions-list"></ol>
+    <!-- Joined Sessions Tab -->
+    <div class="tab-content" id="tab-joined" style="display:none;">
+      <div class="manage-sessions-list" id="joined-sessions-list"></div>
     </div>
-    <div class="tab-content" style="display:none" id="tab-available">
-      <ol class="session-list" id="available-sessions-list"></ol>
+    <!-- Available Sessions Tab -->
+    <div class="tab-content" id="tab-available" style="display:none;">
+      <div class="manage-sessions-list" id="available-sessions-list"></div>
+    </div>
+    <!-- Manage My Sessions Tab -->
+    <div class="tab-content" id="tab-manage" style="display:none;">
+      <div class="manage-sessions-list" id="manage-sessions-list"></div>
+    </div>
+    <!-- Cancelled Sessions Tab -->
+    <div class="tab-content" id="tab-cancelled" style="display:none;">
+      <div class="cancelled-sessions-list" id="cancelled-sessions-list"></div>
     </div>
   </div>
-  <!-- Modal Backdrop for Create Session -->
+  <!-- Modal: Create Session -->
   <div class="modal-backdrop" id="session-modal-backdrop" style="display:none;">
     <div class="modal-content">
       <button class="modal-close" onclick="closeSessionModal()">&times;</button>
-      <h2 class="modal-heading">Create New Session</h2>
+      <div class="modal-heading">Create New Session</div>
+      <div class="scrollable-form-area">
       <form id="create-session-form" autocomplete="off">
         <div class="form-group">
           <label for="sport">Sport</label>
           <select id="sport" required>
-            <option value="">Select a sport</option>
-            <option value="Football">Football</option>
-            <option value="Basketball">Basketball</option>
-            <option value="Badminton">Badminton</option>
+            <option value="">Select sport</option>
           </select>
         </div>
         <div class="form-group">
@@ -560,19 +804,77 @@
           </div>
         </div>
         <div class="form-group">
-          <label for="additional-players">Additional Players Needed</label>
-          <input type="number" id="additional-players" min="0" placeholder="How many more players do you need?" required />
+          <label for="required">How many players required?</label>
+          <input type="number" id="required" min="0" placeholder="Required players" required />
         </div>
         <div class="form-group">
           <label for="description">Description (Optional)</label>
-          <textarea id="description" rows="3" placeholder="Add any additional details about the session..."></textarea>
+          <textarea id="description" rows="2" placeholder="Add session details..."></textarea>
         </div>
         <button class="modal-submit" type="submit">Create Session</button>
       </form>
+      </div>
+    </div>
+  </div>
+  <!-- Modal: Edit Session -->
+  <div class="modal-backdrop" id="edit-session-modal-backdrop" style="display:none;">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeEditSessionModal()">&times;</button>
+      <div class="modal-heading">Edit Session</div>
+      <div class="scrollable-form-area">
+      <form id="edit-session-form" autocomplete="off">
+        <input type="hidden" id="edit-session-id" />
+        <div class="form-group">
+          <label for="edit-sport">Sport</label>
+          <select id="edit-sport" required>
+            <option value="">Select sport</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="edit-venue">Venue</label>
+          <input type="text" id="edit-venue" placeholder="Enter venue location" required />
+        </div>
+        <div class="form-group">
+          <label>Team 1 Players</label>
+          <div class="player-emails-list" id="edit-team1-list"></div>
+          <div class="add-player-row">
+            <input type="email" id="edit-team1-input" placeholder="Enter player email" />
+            <button type="button" class="add-player-btn" onclick="addEditPlayer('team1')">+</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Team 2 Players</label>
+          <div class="player-emails-list" id="edit-team2-list"></div>
+          <div class="add-player-row">
+            <input type="email" id="edit-team2-input" placeholder="Enter player email" />
+            <button type="button" class="add-player-btn" onclick="addEditPlayer('team2')">+</button>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="flex:1;">
+            <label for="edit-date">Date</label>
+            <input type="date" id="edit-date" required min="" />
+          </div>
+          <div class="form-group" style="flex:1;">
+            <label for="edit-time">Time</label>
+            <input type="time" id="edit-time" required min="" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="edit-required">How many players required?</label>
+          <input type="number" id="edit-required" min="0" placeholder="Required players" required />
+        </div>
+        <div class="form-group">
+          <label for="edit-description">Description (Optional)</label>
+          <textarea id="edit-description" rows="2" placeholder="Add session details..."></textarea>
+        </div>
+        <button class="modal-submit" type="submit">Save Changes</button>
+      </form>
+      </div>
     </div>
   </div>
   <script>
-    // Real User Info from localStorage (set on login)
+    // --- USER PROFILE ---
     let user = JSON.parse(localStorage.getItem('currentUser')) || {};
 
     function fillUserInfo() {
@@ -589,105 +891,293 @@
     }
     fillUserInfo();
 
-    // Tab logic
+    // --- TABS LOGIC ---
     function showTab(tab) {
-      ['created','joined','available'].forEach(t => {
+      ['create','joined','available','manage','cancelled'].forEach(t => {
         document.getElementById('tab-'+t).style.display = t===tab ? '' : 'none';
         document.querySelectorAll('.tab-btn').forEach((btn,idx) => {
-          btn.classList.toggle('active', (tab==='created' && idx===0) || (tab==='joined' && idx===1) || (tab==='available' && idx===2));
+          btn.classList.toggle('active', (tab==='create' && idx===0) || (tab==='joined' && idx===1) || (tab==='available' && idx===2) || (tab==='manage' && idx===3) || (tab==='cancelled' && idx===4));
         });
+      });
+      if(tab==='joined') renderJoinedSessions();
+      if(tab==='available') renderAvailableSessions();
+      if(tab==='manage') renderManageSessions();
+      if(tab==='cancelled') renderCancelledSessions();
+    }
+
+    // --- STATE ---
+    let team1Emails = [], team2Emails = [];
+    let editTeam1Emails = [], editTeam2Emails = [];
+    let sports = [];
+    let allSessions = [];
+
+    // --- API HELPERS ---
+    async function fetchSports() {
+      const res = await fetch('/api/sports');
+      if (!res.ok) return [];
+      return await res.json();
+    }
+    async function fetchPlayerSessions() {
+      const res = await fetch(`/api/sessions/player?email=${encodeURIComponent(user.email)}`);
+      if (!res.ok) return [];
+      return await res.json();
+    }
+
+    // --- RENDER SPORTS LIST INTO SELECT ---
+    async function populateSportsDropdown() {
+      sports = await fetchSports();
+      const sel = document.getElementById('sport');
+      sel.innerHTML = '<option value="">Select sport</option>';
+      sports.forEach(sport => {
+        sel.innerHTML += `<option value="${sport.name}">${sport.name}</option>`;
+      });
+    }
+    async function populateEditSportsDropdown() {
+      const sel = document.getElementById('edit-sport');
+      sel.innerHTML = '<option value="">Select sport</option>';
+      sports.forEach(sport => {
+        sel.innerHTML += `<option value="${sport.name}">${sport.name}</option>`;
       });
     }
 
-    // Dummy session data (replace with your backend)
-    const sessions = [];
-
-    function updateSessionCounters() {
-      document.getElementById('sessions-created-count').textContent = sessions.filter(s => s.createdByYou).length;
-      document.getElementById('sessions-joined-count').textContent = sessions.filter(s => s.joined && !s.createdByYou).length;
+    // --- FETCH AND CLASSIFY SESSIONS ---
+    async function reloadSessions() {
+      allSessions = await fetchPlayerSessions();
+      updateStats();
+      renderNextMatch();
+      renderAllSessionLists();
     }
 
-    function renderSessions() {
-      // Created sessions
-      const created = sessions.filter(s => s.createdByYou);
-      document.getElementById('created-sessions-list').innerHTML = created.map(s => `
-        <li class="session-card">
-          <div class="session-info">
-            <div class="session-title">${s.sport}
-              ${s.cancelled ? `<span class="session-status cancelled">Cancelled</span>` : ''}
-            </div>
-            <div class="session-date">${formatDate(s.date)}</div>
-            <div class="session-meta"><b>Venue:</b> ${s.venue}</div>
-            <div class="session-meta"><b>Teams:</b> ${s.team1.join(', ')} vs ${s.team2.join(', ')}</div>
-            <div class="session-meta"><b>Looking for:</b> ${s.additionalPlayers} more player(s)</div>
-            <div class="session-meta"><b>Joined Players:</b> ${s.joinedPlayers.join(', ')}</div>
-            ${s.cancelled && s.cancelReason ? `<div class="session-cancel-reason"><b>Cancel Reason:</b> ${s.cancelReason}</div>` : ''}
+    function updateStats() {
+      const {created, joined, available, cancelled} = classifySessions();
+      document.getElementById("stat-created-sessions").textContent = created.length;
+      document.getElementById("stat-joined-sessions").textContent = joined.length;
+      document.getElementById("stat-available-sessions").textContent = available.length;
+      document.getElementById("stat-manage-sessions").textContent = created.length;
+      
+      // Update quick stats
+      document.getElementById("quick-created").textContent = created.length;
+      document.getElementById("quick-joined").textContent = joined.length;
+      document.getElementById("quick-available").textContent = available.length;
+      document.getElementById("quick-cancelled").textContent = cancelled.length;
+    }
+
+    function renderNextMatch() {
+      const {joined, created} = classifySessions();
+      const allUpcomingSessions = [...joined, ...created]
+        .filter(s => new Date(s.date) > new Date())
+        .sort((a, b) => new Date(a.date) - new Date(b.date));
+      
+      const nextMatchCard = document.getElementById('next-match-card');
+      
+      if (allUpcomingSessions.length > 0) {
+        const nextMatch = allUpcomingSessions[0];
+        nextMatchCard.innerHTML = `
+          <div class="next-match-label">Your Next Match</div>
+          <div class="next-match-sport">${nextMatch.sport}</div>
+          <div class="next-match-details">
+            <div class="next-match-detail"><strong>Venue:</strong> ${nextMatch.venue}</div>
+            <div class="next-match-detail"><strong>Date & Time:</strong> ${formatDate(nextMatch.date)}</div>
+            <div class="next-match-detail"><strong>Created By:</strong> ${nextMatch.createdBy}</div>
+            <div class="next-match-detail"><strong>Required Players:</strong> ${nextMatch.requiredPlayers || 'Not specified'}</div>
+            ${nextMatch.description ? `<div class="next-match-detail"><strong>Description:</strong> ${nextMatch.description}</div>` : ''}
           </div>
-          <div class="session-actions">
-            ${!s.cancelled ? `<button class="action-btn cancel" onclick="alert('Cancel session')">Cancel</button>` : ''}
-          </div>
-        </li>
-      `).join('');
-      // Joined sessions
-      const joined = sessions.filter(s => s.joined && !s.createdByYou);
-      document.getElementById('joined-sessions-list').innerHTML = joined.map(s => `
-        <li class="session-card">
-          <div class="session-info">
-            <div class="session-title">${s.sport}
-              <span class="session-status joined">Joined</span>
-            </div>
-            <div class="session-date">${formatDate(s.date)}</div>
-            <div class="session-meta"><b>Venue:</b> ${s.venue}</div>
-            <div class="session-meta"><b>Teams:</b> ${s.team1.join(', ')} vs ${s.team2.join(', ')}</div>
-            <div class="session-meta"><b>Looking for:</b> ${s.additionalPlayers} more player(s)</div>
-            <div class="session-meta"><b>Joined Players:</b> ${s.joinedPlayers.join(', ')}</div>
-          </div>
-          <div class="session-actions">
-            <button class="action-btn joined" disabled>Joined</button>
-          </div>
-        </li>
-      `).join('');
-      // Available sessions
-      const available = sessions.filter(s => !s.cancelled && !s.joined && !s.createdByYou);
-      document.getElementById('available-sessions-list').innerHTML = available.map(s => `
-        <li class="session-card">
-          <div class="session-info">
-            <div class="session-title">${s.sport}</div>
-            <div class="session-date">${formatDate(s.date)}</div>
-            <div class="session-meta"><b>Venue:</b> ${s.venue}</div>
-            <div class="session-meta"><b>Teams:</b> ${s.team1.join(', ')} vs ${s.team2.join(', ')}</div>
-            <div class="session-meta"><b>Looking for:</b> ${s.additionalPlayers} more player(s)</div>
-            <div class="session-meta"><b>Joined Players:</b> ${s.joinedPlayers.join(', ')}</div>
-          </div>
-          <div class="session-actions">
-            <button class="action-btn join" onclick="alert('Join session')">Join</button>
-          </div>
-        </li>
-      `).join('');
-      // Next match logic
-      const upcoming = sessions.filter(s => new Date(s.date) > new Date() && (s.createdByYou || s.joined));
-      if(upcoming.length) {
-        const next = upcoming.sort((a,b) => new Date(a.date)-new Date(b.date))[0];
-        document.getElementById('next-match').textContent = next.sport;
-        document.getElementById('next-match-date').textContent = formatDate(next.date);
+        `;
       } else {
-        document.getElementById('next-match').textContent = "—";
-        document.getElementById('next-match-date').textContent = "";
+        nextMatchCard.innerHTML = `
+          <div class="no-next-match">
+            <i class="fas fa-calendar-times" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
+            <div>No upcoming matches scheduled</div>
+          </div>
+        `;
       }
-      updateSessionCounters();
+    }
+
+    function classifySessions() {
+      // Categorize sessions for this player
+      const created = allSessions.filter(s => s.createdBy === user.email);
+      const joined = allSessions.filter(s => {
+        if (s.createdBy === user.email) return false;
+        const p = s.playerEmails.find(p => p.email === user.email);
+        return p && p.joined && !p.cancelled;
+      });
+      const available = allSessions.filter(s => {
+        if (s.createdBy === user.email) return false;
+        const p = s.playerEmails.find(p => p.email === user.email);
+        return p && !p.joined && !p.cancelled;
+      });
+      const cancelled = allSessions.filter(s => {
+        const p = s.playerEmails.find(p => p.email === user.email);
+        return p && p.cancelled;
+      });
+      return {created, joined, available, cancelled};
     }
 
     function formatDate(dtStr) {
       const dt = new Date(dtStr);
       return dt.toLocaleString('en-IN', {
-        day: '2-digit', month: 'short', year: '2-digit', hour: '2-digit', minute: '2-digit'
+        day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
       });
     }
 
-    // MODAL LOGIC
-    let team1Emails = [], team2Emails = [];
+    function renderAllSessionLists() {
+      renderJoinedSessions();
+      renderAvailableSessions();
+      renderManageSessions();
+      renderCancelledSessions();
+    }
 
+    function renderJoinedSessions() {
+      const {joined} = classifySessions();
+      const container = document.getElementById('joined-sessions-list');
+      
+      container.innerHTML = joined.map(s => `
+        <div class="session-box">
+          <div class="session-title">${s.sport} <span class="session-status joined">Joined</span></div>
+          <div class="session-info-row"><strong>Venue:</strong> ${s.venue}</div>
+          <div class="session-info-row"><strong>Date:</strong> ${formatDate(s.date)}</div>
+          <div class="session-info-row"><strong>Created By:</strong> ${s.createdBy}</div>
+          <div class="session-info-row"><strong>Required Players:</strong> ${s.requiredPlayers || 'Not specified'}</div>
+          ${renderTeamInfo(s)}
+          ${s.description ? `<div class="session-description-row"><strong>Description:</strong> ${s.description}</div>` : ''}
+          <div class="session-actions">
+            <button class="action-btn cancel" onclick="cancelSessionPrompt('${s._id}')">Cancel</button>
+          </div>
+        </div>
+      `).join('') || "<div style='color:#b8eecb;'>No joined sessions yet.</div>";
+    }
+
+    function renderAvailableSessions() {
+      const {available} = classifySessions();
+      const container = document.getElementById('available-sessions-list');
+      
+      container.innerHTML = available.map(s => `
+        <div class="session-box">
+          <div class="session-title">${s.sport}</div>
+          <div class="session-info-row"><strong>Venue:</strong> ${s.venue}</div>
+          <div class="session-info-row"><strong>Date:</strong> ${formatDate(s.date)}</div>
+          <div class="session-info-row"><strong>Created By:</strong> ${s.createdBy}</div>
+          <div class="session-info-row"><strong>Required Players:</strong> ${s.requiredPlayers || 'Not specified'}</div>
+          ${renderTeamInfo(s)}
+          ${s.description ? `<div class="session-description-row"><strong>Description:</strong> ${s.description}</div>` : ''}
+          <div class="session-actions">
+            <button class="action-btn join" onclick="joinSession('${s._id}')">Join</button>
+          </div>
+        </div>
+      `).join('') || "<div style='color:#b8eecb;'>No available sessions.</div>";
+    }
+
+    function renderManageSessions() {
+      const {created} = classifySessions();
+      const container = document.getElementById('manage-sessions-list');
+      
+      container.innerHTML = created.map(s => `
+        <div class="session-box">
+          <div class="session-title">${s.sport}</div>
+          <div class="session-info-row"><strong>Venue:</strong> ${s.venue}</div>
+          <div class="session-info-row"><strong>Date:</strong> ${formatDate(s.date)}</div>
+          <div class="session-info-row"><strong>Required Players:</strong> ${s.requiredPlayers || 'Not specified'}</div>
+          ${renderTeamInfo(s)}
+          ${s.description ? `<div class="session-description-row"><strong>Description:</strong> ${s.description}</div>` : ''}
+          <div class="session-actions">
+            <button class="edit-session-btn" title="Edit" onclick="openEditSessionModal('${s._id}')"><i class="fas fa-pen"></i></button>
+            <button class="delete-session-btn" title="Delete" onclick="deleteSession('${s._id}')"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+      `).join('') || "<div style='color:#b8eecb;'>No sessions created yet.</div>";
+    }
+
+    function renderCancelledSessions() {
+      const {cancelled} = classifySessions();
+      const container = document.getElementById('cancelled-sessions-list');
+      
+      container.innerHTML = cancelled.map(s => {
+        const playerInfo = s.playerEmails.find(p => p.email === user.email);
+        return `
+          <div class="session-box">
+            <div class="session-title">${s.sport} <span class="session-status cancelled">Cancelled</span></div>
+            <div class="session-info-row"><strong>Venue:</strong> ${s.venue}</div>
+            <div class="session-info-row"><strong>Date:</strong> ${formatDate(s.date)}</div>
+            <div class="session-info-row"><strong>Created By:</strong> ${s.createdBy}</div>
+            <div class="session-info-row"><strong>Required Players:</strong> ${s.requiredPlayers || 'Not specified'}</div>
+            ${renderTeamInfo(s)}
+            ${s.description ? `<div class="session-description-row"><strong>Description:</strong> ${s.description}</div>` : ''}
+            <div class="cancelled-by-row">
+              <strong>Cancelled by you:</strong> ${playerInfo?.cancelReason || 'No reason provided'}
+            </div>
+          </div>
+        `;
+      }).join('') || "<div style='color:#b8eecb;'>No cancelled sessions.</div>";
+    }
+
+    function renderTeamInfo(session) {
+      let team1Players = Array.isArray(session.team1) ? session.team1 : [];
+      let team2Players = Array.isArray(session.team2) ? session.team2 : [];
+      
+      // If teams aren't defined but playerEmails are, split them into two teams
+      if ((team1Players.length === 0 || team2Players.length === 0) && session.playerEmails && session.playerEmails.length > 0) {
+        const allPlayers = session.playerEmails.map(p => p.email);
+        const half = Math.ceil(allPlayers.length / 2);
+        team1Players = allPlayers.slice(0, half);
+        team2Players = allPlayers.slice(half);
+      }
+      
+      return `
+        <div class="session-teams-row"><strong>Team 1 Players:</strong> ${team1Players.join(', ')}</div>
+        <div class="session-teams-row"><strong>Team 2 Players:</strong> ${team2Players.join(', ')}</div>
+      `;
+    }
+
+    // --- JOIN SESSION ---
+    async function joinSession(sessionId) {
+      if(!confirm("Do you want to join this session?")) return;
+      const res = await fetch('/api/sessions/join', {
+        method: 'PATCH',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ sessionId, playerEmail: user.email })
+      });
+      const data = await res.json();
+      if(res.ok) {
+        alert("Successfully joined the session!");
+        reloadSessions();
+      } else {
+        alert(data.message || "Unable to join session.");
+      }
+    }
+
+    // --- CANCEL SESSION ---
+    function cancelSessionPrompt(sessionId) {
+      const reason = prompt("Enter reason for cancellation:");
+      if(reason === null) return;
+      cancelSession(sessionId, reason);
+    }
+    async function cancelSession(sessionId, reason) {
+      const res = await fetch('/api/sessions/cancel', {
+        method: 'PATCH',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ sessionId, playerEmail: user.email, reason })
+      });
+      const data = await res.json();
+      if(res.ok) {
+        alert("Cancelled session.");
+        reloadSessions();
+      } else {
+        alert(data.message || "Unable to cancel session.");
+      }
+    }
+
+    // --- DELETE SESSION ---
+    async function deleteSession(id) {
+      if(confirm("Delete this session?")) {
+        const res = await fetch(`/api/sessions/${id}`, { method: 'DELETE' });
+        if (res.ok) await reloadSessions();
+        else alert('Error deleting session');
+      }
+    }
+
+    // --- MODAL LOGIC FOR CREATE SESSION ---
     function openSessionModal() {
+      populateSportsDropdown();
       // Set min date to today
       const today = new Date();
       const yyyy = today.getFullYear();
@@ -741,56 +1231,168 @@
       const mm = String(today.getMonth() + 1).padStart(2, '0');
       const dd = String(today.getDate()).padStart(2, '0');
       if (selectedDate === `${yyyy}-${mm}-${dd}`) {
-        // Only allow time from now onwards if today
         const now = today.toTimeString().slice(0,5);
         timeInput.min = now;
       } else {
         timeInput.min = "";
       }
     }
-    document.getElementById('time').addEventListener('keydown', (e) => {
-      // Block manual typing of invalid times if needed
-    });
 
-    document.getElementById('create-session-form').onsubmit = function(e){
+    document.getElementById('create-session-form').onsubmit = async function(e){
       e.preventDefault();
       const sport = document.getElementById('sport').value;
       const venue = document.getElementById('venue').value;
       const date = document.getElementById('date').value;
       const time = document.getElementById('time').value;
-      const additionalPlayers = document.getElementById('additional-players').value;
+      const required = document.getElementById('required').value;
       const description = document.getElementById('description').value;
+      
       if(!team1Emails.length || !team2Emails.length) {
         alert("Please add at least one player to both teams (by email).");
         return;
       }
+      
       const dt = new Date(date + "T" + time);
       const now = new Date();
       if(dt < now) {
         alert("Please select a future date and time.");
         return;
       }
-      // Save to backend here, then update UI
-      sessions.push({
-        id: Date.now(),
-        sport,
-        venue,
-        date: dt.toISOString(),
-        team1: team1Emails.slice(),
-        team2: team2Emails.slice(),
-        additionalPlayers: parseInt(additionalPlayers,10),
-        joinedPlayers: [],
-        createdByYou: true,
-        joined: false,
-        cancelled: false,
-        cancelReason: '',
-        description
+      
+      // Combine team1 and team2 and add creator's email if not in list
+      const playerEmails = Array.from(new Set([...team1Emails, ...team2Emails, user.email]));
+      
+      const res = await fetch('/api/sessions', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          sport, venue, date, time,
+          playerEmails,
+          description,
+          requiredPlayers: required,
+          createdBy: user.email,
+          team1: team1Emails,
+          team2: team2Emails
+        })
       });
-      closeSessionModal();
-      renderSessions();
+      
+      if(res.ok) {
+        closeSessionModal();
+        reloadSessions();
+        alert("Session created. Invited players will see it when they login.");
+      } else {
+        const data = await res.json();
+        alert(data.message || 'Error creating session');
+      }
+    };
+
+    // --- EDIT SESSION MODAL ---
+    function openEditSessionModal(sessionId) {
+      const s = allSessions.find(sess => sess._id === sessionId && sess.createdBy === user.email);
+      if (!s) return;
+      
+      // Fill the form:
+      document.getElementById("edit-session-id").value = s._id;
+      document.getElementById("edit-sport").value = s.sport;
+      document.getElementById("edit-venue").value = s.venue;
+      document.getElementById("edit-date").value = s.date ? s.date.slice(0,10) : "";
+      document.getElementById("edit-time").value = s.date ? (new Date(s.date)).toISOString().slice(11,16) : "";
+      document.getElementById("edit-required").value = s.requiredPlayers || "";
+      document.getElementById("edit-description").value = s.description || "";
+      
+      // For teams, parse from session if available
+      editTeam1Emails = Array.isArray(s.team1) ? [...s.team1] : [];
+      editTeam2Emails = Array.isArray(s.team2) ? [...s.team2] : [];
+      
+      // If teams aren't defined but playerEmails are, split them into two teams
+      if ((editTeam1Emails.length === 0 || editTeam2Emails.length === 0) && s.playerEmails && s.playerEmails.length > 0) {
+        const allPlayers = s.playerEmails.map(p => p.email);
+        const half = Math.ceil(allPlayers.length / 2);
+        editTeam1Emails = allPlayers.slice(0, half);
+        editTeam2Emails = allPlayers.slice(half);
+      }
+      
+      renderEditEmailLists();
+      populateEditSportsDropdown();
+      
+      document.getElementById('edit-session-modal-backdrop').style.display = 'flex';
+      setTimeout(()=>document.getElementById('edit-session-modal-backdrop').classList.add('active'),10);
+    }
+    function closeEditSessionModal() {
+      const modal = document.getElementById('edit-session-modal-backdrop');
+      modal.classList.remove('active');
+      setTimeout(()=>{ modal.style.display='none'; }, 210);
+      document.getElementById('edit-session-form').reset();
+      editTeam1Emails = [];
+      editTeam2Emails = [];
+      renderEditEmailLists();
+    }
+    function addEditPlayer(team) {
+      const input = document.getElementById("edit-"+team+"-input");
+      const email = input.value.trim();
+      if (!email || !/^[^@]+@[^@]+\.[^@]+$/.test(email)) { input.value=''; return; }
+      if (team === 'team1') {
+        if (!editTeam1Emails.includes(email)) editTeam1Emails.push(email);
+      } else {
+        if (!editTeam2Emails.includes(email)) editTeam2Emails.push(email);
+      }
+      input.value = '';
+      renderEditEmailLists();
+    }
+    function removeEditPlayer(team, idx) {
+      if (team === 'team1') editTeam1Emails.splice(idx, 1);
+      else editTeam2Emails.splice(idx, 1);
+      renderEditEmailLists();
+    }
+    function renderEditEmailLists() {
+      const t1 = document.getElementById('edit-team1-list'), t2 = document.getElementById('edit-team2-list');
+      t1.innerHTML = editTeam1Emails.map((e,i)=>`<span class="player-email-item">${e}<button class="remove-player-btn" type="button" onclick="removeEditPlayer('team1',${i})">&times;</button></span>`).join('');
+      t2.innerHTML = editTeam2Emails.map((e,i)=>`<span class="player-email-item">${e}<button class="remove-player-btn" type="button" onclick="removeEditPlayer('team2',${i})">&times;</button></span>`).join('');
     }
 
-    // PROFILE MODAL LOGIC
+    document.getElementById('edit-session-form').onsubmit = async function(e){
+      e.preventDefault();
+      const id = document.getElementById("edit-session-id").value;
+      const sport = document.getElementById("edit-sport").value;
+      const venue = document.getElementById("edit-venue").value;
+      const date = document.getElementById("edit-date").value;
+      const time = document.getElementById("edit-time").value;
+      const required = document.getElementById("edit-required").value;
+      const description = document.getElementById("edit-description").value;
+      
+      if(!editTeam1Emails.length || !editTeam2Emails.length) {
+        alert("Please add at least one player to both teams (by email).");
+        return;
+      }
+      
+      const playerEmails = Array.from(new Set([...editTeam1Emails, ...editTeam2Emails, user.email]));
+      
+      const res = await fetch(`/api/sessions/${id}`, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          sport,
+          venue,
+          date,
+          time,
+          playerEmails,
+          description,
+          requiredPlayers: required,
+          team1: editTeam1Emails,
+          team2: editTeam2Emails
+        })
+      });
+      
+      if(res.ok) {
+        await reloadSessions();
+        closeEditSessionModal();
+        alert("Session updated.");
+      } else {
+        alert('Error updating session');
+      }
+    };
+
+    // --- PROFILE MODAL LOGIC ---
     function toggleProfileModal() {
       const backdrop = document.getElementById('profile-modal-backdrop');
       backdrop.classList.toggle('active');
@@ -805,8 +1407,11 @@
       window.location.href = '/login.html';
     }
 
-    // Initial rendering
-    renderSessions();
+    // --- ON LOAD ---
+    (function init() {
+      populateSportsDropdown();
+      reloadSessions();
+    })();
   </script>
 </body>
 </html>

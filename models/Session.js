@@ -12,8 +12,11 @@ const sessionSchema = new mongoose.Schema({
   venue:        { type: String, required: true },
   date:         { type: Date, required: true },
   playerEmails: [playerEmailSchema],
+  team1:        [{ type: String }], // ADDED
+  team2:        [{ type: String }], // ADDED
   description:  { type: String },
   createdBy:    { type: String, required: true }, // "admin" or player email
+  requiredPlayers: { type: Number }, // Optional: for completeness
 }, { timestamps: true });
 
 module.exports = mongoose.model('Session', sessionSchema);
