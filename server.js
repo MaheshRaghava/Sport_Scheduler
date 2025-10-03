@@ -1,4 +1,3 @@
-// server.js
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
@@ -22,10 +21,10 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopol
   .then(() => console.log('MongoDB connected successfully'))
   .catch(err => console.log('MongoDB connection error:', err));
 
-// --- Models ---
+// Models
 const User = require('./models/User');
 
-// --- Email transporter (for verification & password reset) ---
+// Email transporter (for verification & password reset)
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -34,7 +33,7 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-// --- Static routes for HTML pages ---
+// Static routes for HTML pages
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'home.html'));
 });
@@ -47,7 +46,7 @@ app.get('/verify-email', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'emailverify.html'));
 });
 
-// --- Email Verification (standalone for frontend compatibility) ---
+// Email Verification (standalone for frontend compatibility)
 app.post('/verify-email', async (req, res) => {
   const { email, code } = req.body;
   const savedCode = app.locals.verificationCodes?.[email];
@@ -62,7 +61,7 @@ app.post('/verify-email', async (req, res) => {
   }
 });
 
-// --- Forgot/Reset Password (standalone for frontend compatibility) ---
+// Forgot/Reset Password (standalone for frontend compatibility)
 app.post('/forgot-password', async (req, res) => {
   try {
     const { email } = req.body;
@@ -117,7 +116,7 @@ app.post('/reset-password', async (req, res) => {
   res.status(200).json({ message: 'Password reset successful' });
 });
 
-// --- Custom Signup: uses email verification logic here for compatibility ---
+// Custom Signup: uses email verification logic here for compatibility
 app.post('/signup', async (req, res) => {
   try {
     const { fullname, email, password } = req.body;

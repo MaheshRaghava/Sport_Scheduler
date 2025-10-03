@@ -106,7 +106,7 @@
       verifyButton.addEventListener('click', async () => {
         const code = Array.from(inputs).map(i => i.value).join('');
         try {
-          // Use your user API route for verification (matches server.js)
+          // Use user API route for verification (matches server.js)
           const res = await fetch('/verify-email', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

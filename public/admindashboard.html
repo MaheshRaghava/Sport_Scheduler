@@ -440,7 +440,7 @@
       transition: background 0.17s;
     }
     .add-player-btn:hover { background: #17a44b; }
-    .manage-sessions-list, .cancelled-sessions-list {
+    .manage-sessions-list, .cancelled-sessions-list, .available-sessions-list {
       display: flex;
       flex-direction: column;
       gap: 16px;
@@ -501,6 +501,32 @@
     }
     .edit-session-btn:hover { color: var(--primary); }
     .delete-session-btn:hover { color: var(--error);}
+    .action-btn {
+      padding: 8px 21px; border-radius: 9px;
+      border: none; font-size: 15px; font-weight: 600;
+      cursor: pointer;
+      background: var(--primary); color: #fff;
+      transition: background 0.13s;
+      font-family: inherit;
+      box-shadow: 0 1px 4px rgba(29,185,84,0.19);
+    }
+    .action-btn.cancel { background: #e84b4b; }
+    .action-btn.joined, .action-btn:disabled { background: #c8e6ce; color: var(--primary); cursor: not-allowed;}
+    .action-btn.join { background: var(--primary); }
+    .action-btn:hover:not(:disabled) { filter: brightness(0.93);}
+    .session-status {
+      font-size: 13px; font-weight: 600;
+      padding: 1px 11px; border-radius: 8px; margin-left: 7px;
+      background: #eaf8ec; color: var(--primary);
+      border: 1px solid #caeeca;
+      display: inline-block;
+    }
+    .session-status.cancelled {
+      background: #ffeaea; color: #ff4c4c; border: 1px solid #ffdada;
+    }
+    .session-status.joined {
+      background: #eaf8ec; color: var(--primary); border: 1px solid #caeeca;
+    }
     .cancelled-by-row {
       color: var(--error);
       margin-top: 5px;
@@ -562,25 +588,6 @@
     .stat-label {
       font-size: 0.9rem;
       color: #b8eecb;
-    }
-    .report-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-    }
-    .report-table th,
-    .report-table td {
-      padding: 12px;
-      text-align: left;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-    .report-table th {
-      background: rgba(29,185,84,0.2);
-      color: var(--primary);
-      font-weight: 600;
-    }
-    .report-table tr:hover {
-      background: rgba(255,255,255,0.05);
     }
     .export-btn {
       background: var(--primary);
@@ -663,12 +670,20 @@
           <span class="stat-value" id="stat-active-players">0</span>
         </div>
       </div>
+      <div class="stat-card">
+        <span class="stat-icon"><i class="fas fa-user-plus"></i></span>
+        <div class="stat-info">
+          <span class="stat-label">Available Sessions</span>
+          <span class="stat-value" id="stat-available-sessions">0</span>
+        </div>
+      </div>
     </div>
     <!-- Tabs -->
     <div class="tabs-row">
       <button class="tab-btn active" onclick="showTab('sports')">Manage Sports</button>
       <button class="tab-btn" onclick="showTab('create')">Create Sessions</button>
       <button class="tab-btn" onclick="showTab('manage')">Manage Sessions</button>
+      <button class="tab-btn" onclick="showTab('available')">Available Sessions</button>
       <button class="tab-btn" onclick="showTab('joined')">Joined Sessions</button>
       <button class="tab-btn" onclick="showTab('cancelled')">Cancelled Sessions</button>
       <button class="tab-btn" onclick="showTab('reports')">Reports</button>
@@ -701,6 +716,11 @@
     <div class="tab-content" id="tab-manage" style="display:none;">
       <div style="font-size:1.22rem;font-weight:600;margin-bottom:11px;">Manage Sessions</div>
       <div class="manage-sessions-list" id="manage-sessions-list"></div>
+    </div>
+    <!-- Available Sessions Tab -->
+    <div class="tab-content" id="tab-available" style="display:none;">
+      <div style="font-size:1.22rem;font-weight:600;margin-bottom:11px;">Available Sessions</div>
+      <div class="available-sessions-list" id="available-sessions-list"></div>
     </div>
     <!-- Joined Sessions Tab -->
     <div class="tab-content" id="tab-joined" style="display:none;">
@@ -755,52 +775,6 @@
               <!-- Sport stats will be populated here -->
             </div>
           </div>
-        </div>
-
-        <!-- Player Participation -->
-        <div class="report-card">
-          <div class="report-title">
-            <i class="fas fa-user-check"></i>
-            Player Participation
-          </div>
-          <div class="stats-grid">
-            <div class="stat-item">
-              <div class="stat-number" id="total-players-count">0</div>
-              <div class="stat-label">Total Players</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-number" id="active-players-count">0</div>
-              <div class="stat-label">Active Players</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-number" id="avg-participation">0</div>
-              <div class="stat-label">Avg Participation</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-number" id="top-participant">-</div>
-              <div class="stat-label">Top Participant</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Recent Activity -->
-        <div class="report-card">
-          <div class="report-title">
-            <i class="fas fa-history"></i>
-            Recent Activity
-          </div>
-          <table class="report-table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Activity</th>
-                <th>Details</th>
-              </tr>
-            </thead>
-            <tbody id="recent-activity-table">
-              <!-- Recent activity will be populated here -->
-            </tbody>
-          </table>
         </div>
       </div>
 
@@ -924,7 +898,32 @@
     </div>
   </div>
   <script>
-    // --- Data State ---
+    // Helper Functions
+function formatDate(dtStr) {
+  const dt = new Date(dtStr);
+  return dt.toLocaleString('en-IN', {
+    day: '2-digit', month: 'short', year: '2-digit', hour: '2-digit', minute: '2-digit'
+  });
+}
+
+function renderTeamInfo(session) {
+  let team1Players = Array.isArray(session.team1) ? session.team1 : [];
+  let team2Players = Array.isArray(session.team2) ? session.team2 : [];
+  
+  // If teams aren't defined but playerEmails are, split them into two teams
+  if ((team1Players.length === 0 || team2Players.length === 0) && session.playerEmails && session.playerEmails.length > 0) {
+    const allPlayers = session.playerEmails.map(p => p.email);
+    const half = Math.ceil(allPlayers.length / 2);
+    team1Players = allPlayers.slice(0, half);
+    team2Players = allPlayers.slice(half);
+  }
+  
+  return `
+    <div class="session-teams-row"><strong>Team 1 Players:</strong> ${team1Players.join(', ')}</div>
+    <div class="session-teams-row"><strong>Team 2 Players:</strong> ${team2Players.join(', ')}</div>
+  `;
+}
+    // Data State
     let sports = [];
     let sessions = [];
     let players = [];
@@ -933,64 +932,167 @@
     let editTeam1Emails = [];
     let editTeam2Emails = [];
     let cancelledSessionsData = [];
+    let adminEmail = "";
 
-    // --- API Helpers ---
+    // Initial Load Function
+    async function reloadAdminData() {
+      try {
+        sports = await fetchSports();
+        sessions = await fetchSessions();
+        players = await fetchPlayers();
+        cancelledSessionsData = await fetchCancelledSessions();
+        renderSports();
+        renderManageSessions();
+        renderAvailableSessions();
+        renderJoinedSessions();
+        renderCancelledSessions();
+        renderReports();
+        fetchStats();
+      } catch (error) {
+        console.error('Error reloading admin data:', error);
+      }
+    }
+
+    // API Helpers
     async function fetchSports() {
-      const res = await fetch('/api/sports');
-      return res.ok ? await res.json() : [];
+      try {
+        const res = await fetch('/api/sports');
+        return res.ok ? await res.json() : [];
+      } catch (error) {
+        console.error('Error fetching sports:', error);
+        return [];
+      }
     }
+
     async function fetchSessions() {
-      const res = await fetch('/api/sessions/admin');
-      return res.ok ? await res.json() : [];
+      try {
+        const res = await fetch('/api/sessions/admin');
+        return res.ok ? await res.json() : [];
+      } catch (error) {
+        console.error('Error fetching sessions:', error);
+        return [];
+      }
     }
+
     async function fetchPlayers() {
-      const res = await fetch('/api/users/players');
-      return res.ok ? await res.json() : [];
+      try {
+        const res = await fetch('/api/users/players');
+        return res.ok ? await res.json() : [];
+      } catch (error) {
+        console.error('Error fetching players:', error);
+        return [];
+      }
     }
+
     async function fetchCancelledSessions() {
-      const res = await fetch('/api/sessions/cancelled-by-players');
-      return res.ok ? await res.json() : [];
+      try {
+        const res = await fetch('/api/sessions/cancelled-by-players');
+        return res.ok ? await res.json() : [];
+      } catch (error) {
+        console.error('Error fetching cancelled sessions:', error);
+        return [];
+      }
     }
     async function fetchStats() {
-      // Stats: total sports, sessions, players
-      const [sportsArr, sessionsArr, playersArr] = await Promise.all([fetchSports(), fetchSessions(), fetchPlayers()]);
-      document.getElementById("stat-total-sports").textContent = sportsArr.length;
-      document.getElementById("stat-total-sessions").textContent = sessionsArr.length;
-      document.getElementById("stat-active-players").textContent = playersArr.length;
+  try {
+    const [sportsArr, sessionsArr, playersArr] = await Promise.all([
+      fetchSports(), 
+      fetchSessions(), 
+      fetchPlayers()
+    ]);
+    
+    document.getElementById("stat-total-sports").textContent = sportsArr.length;
+    
+    const adminSessionsCount = sessionsArr.filter(s => s.createdBy === "admin").length;
+    document.getElementById("stat-total-sessions").textContent = adminSessionsCount;
+    
+    document.getElementById("stat-active-players").textContent = playersArr.length;
+    
+    // Only set adminEmail if it's not already set manually
+    if (!adminEmail) {
+      // Check which admin email exists in the sessions
+      const adminEmailsToTry = ["maheshraghava@gmail.com", "admin@gmail.com"];
+      
+      for (const email of adminEmailsToTry) {
+        const sessionsWithThisAdmin = sessionsArr.filter(session => {
+          return session.playerEmails.some(p => 
+            p.email.toLowerCase().trim() === email.toLowerCase().trim()
+          );
+        });
+        
+        if (sessionsWithThisAdmin.length > 0) {
+          adminEmail = email;
+          console.log(`🎯 Auto-detected admin email: ${adminEmail}`);
+          break;
+        }
+      }
+      
+      // Fallback if no sessions found
+      if (!adminEmail) {
+        adminEmail = localStorage.getItem('adminEmail') || "maheshraghava@gmail.com";
+      }
     }
-
-    // --- Initial Load ---
-    async function reloadAdminData() {
-      sports = await fetchSports();
-      sessions = await fetchSessions();
-      players = await fetchPlayers();
-      cancelledSessionsData = await fetchCancelledSessions();
-      renderSports();
-      renderManageSessions();
-      renderJoinedSessions();
-      renderCancelledSessions();
-      renderReports();
-      fetchStats();
+    
+    console.log(`🔑 Using admin email: ${adminEmail}`);
+    
+    // Save for future use
+    if (adminEmail) {
+      localStorage.setItem('adminEmail', adminEmail);
     }
-    reloadAdminData();
+    
+    // Calculate available sessions
+    const availableSessions = sessionsArr.filter(session => {
+      const normalizedAdminEmail = adminEmail.toLowerCase().trim();
+      const adminPlayer = session.playerEmails.find(p => {
+        const normalizedPlayerEmail = p.email.toLowerCase().trim();
+        return normalizedPlayerEmail === normalizedAdminEmail && !p.joined && !p.cancelled;
+      });
+      return adminPlayer !== undefined;
+    });
+    
+    document.getElementById("stat-available-sessions").textContent = availableSessions.length;
+  } catch (error) {
+    console.error('Error fetching stats:', error);
+  }
+}
+        // Load data when page is ready (FIXED VERSION)
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log("🔄 Admin Dashboard Loading...");
+      reloadAdminData();
+    });
 
     // Tabs
     function showTab(tab) {
-      ["sports","create","manage","joined","cancelled","reports"].forEach(t=>{
-        document.getElementById('tab-'+t).style.display = t===tab ? "" : "none";
-        document.querySelectorAll('.tab-btn').forEach((btn,idx)=>{
-          btn.classList.toggle('active', (tab==="sports"&&idx===0)||(tab==="create"&&idx===1)||(tab==="manage"&&idx===2)||(tab==="joined"&&idx===3)||(tab==="cancelled"&&idx===4)||(tab==="reports"&&idx===5));
-        });
+      const tabs = ["sports","create","manage","available","joined","cancelled","reports"];
+      tabs.forEach(t => {
+        document.getElementById('tab-'+t).style.display = t === tab ? "" : "none";
       });
-      if(tab==="manage") renderManageSessions();
-      if(tab==="joined") renderJoinedSessions();
-      if(tab==="cancelled") renderCancelledSessions();
-      if(tab==="reports") renderReports();
+      
+      document.querySelectorAll('.tab-btn').forEach((btn, idx) => {
+        btn.classList.toggle('active', 
+          (tab === "sports" && idx === 0) ||
+          (tab === "create" && idx === 1) ||
+          (tab === "manage" && idx === 2) ||
+          (tab === "available" && idx === 3) ||
+          (tab === "joined" && idx === 4) ||
+          (tab === "cancelled" && idx === 5) ||
+          (tab === "reports" && idx === 6)
+        );
+      });
+      
+      // Refresh specific tab content
+      if(tab === "manage") renderManageSessions();
+      if(tab === "available") renderAvailableSessions();
+      if(tab === "joined") renderJoinedSessions();
+      if(tab === "cancelled") renderCancelledSessions();
+      if(tab === "reports") renderReports();
     }
 
     // --- Sports Management ---
     function renderSports() {
       const sportsList = document.getElementById("sports-list");
+      if (!sportsList) return;
+      
       sportsList.innerHTML = "";
       sports.forEach((sport, idx) => {
         sportsList.innerHTML += `
@@ -1013,44 +1115,72 @@
       updateAdminSportList();
       updateEditAdminSportList();
     }
+
     async function addSport() {
       const input = document.getElementById("sport-input");
       const name = input.value.trim();
       if(!name) return;
-      if(sports.some(s=>s.name.toLowerCase()===name.toLowerCase())) { alert("Sport already exists."); return; }
-      const res = await fetch('/api/sports', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ name })
-      });
-      if (res.ok) {
-        input.value = "";
-        await reloadAdminData();
-        updateAdminSportList();
-      } else {
-        const data = await res.json();
-        alert(data.message || "Error adding sport.");
+      
+      if(sports.some(s=>s.name.toLowerCase()===name.toLowerCase())) { 
+        alert("Sport already exists."); 
+        return; 
+      }
+      
+      try {
+        const res = await fetch('/api/sports', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ name })
+        });
+        
+        if (res.ok) {
+          input.value = "";
+          await reloadAdminData();
+        } else {
+          const data = await res.json();
+          alert(data.message || "Error adding sport.");
+        }
+      } catch (error) {
+        console.error('Error adding sport:', error);
+        alert('Error adding sport');
       }
     }
+
     async function editSport(id) {
       const sport = sports.find(s=>s._id===id);
       const newName = prompt("Edit sport name:", sport.name);
       if(newName && newName.trim()) {
-        if(sports.some((s)=>s._id!==id&&s.name.toLowerCase()===newName.trim().toLowerCase())) { alert("Sport already exists."); return; }
-        const res = await fetch(`/api/sports/${id}`, {
-          method: 'PUT',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({ name: newName.trim() })
-        });
-        if (res.ok) await reloadAdminData();
-        else alert('Error editing sport');
+        if(sports.some((s)=>s._id!==id&&s.name.toLowerCase()===newName.trim().toLowerCase())) { 
+          alert("Sport already exists."); 
+          return; 
+        }
+        
+        try {
+          const res = await fetch(`/api/sports/${id}`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ name: newName.trim() })
+          });
+          
+          if (res.ok) await reloadAdminData();
+          else alert('Error editing sport');
+        } catch (error) {
+          console.error('Error editing sport:', error);
+          alert('Error editing sport');
+        }
       }
     }
+
     async function deleteSport(id) {
       if(confirm("Delete this sport?")) {
-        const res = await fetch(`/api/sports/${id}`, { method: 'DELETE' });
-        if (res.ok) await reloadAdminData();
-        else alert('Error deleting sport');
+        try {
+          const res = await fetch(`/api/sports/${id}`, { method: 'DELETE' });
+          if (res.ok) await reloadAdminData();
+          else alert('Error deleting sport');
+        } catch (error) {
+          console.error('Error deleting sport:', error);
+          alert('Error deleting sport');
+        }
       }
     }
 
@@ -1058,15 +1188,16 @@
       const sel = document.getElementById("admin-sport");
       if (!sel) return;
       sel.innerHTML = `<option value="">Select sport</option>`;
-      sports.forEach(sport=>{
+      sports.forEach(sport => {
         sel.innerHTML += `<option value="${sport.name}">${sport.name}</option>`;
       });
     }
+
     function updateEditAdminSportList() {
       const sel = document.getElementById("edit-admin-sport");
       if (!sel) return;
       sel.innerHTML = `<option value="">Select sport</option>`;
-      sports.forEach(sport=>{
+      sports.forEach(sport => {
         sel.innerHTML += `<option value="${sport.name}">${sport.name}</option>`;
       });
     }
@@ -1077,59 +1208,98 @@
       const yyyy = today.getFullYear();
       const mm = String(today.getMonth() + 1).padStart(2, '0');
       const dd = String(today.getDate()).padStart(2, '0');
-      document.getElementById('admin-date').min = `${yyyy}-${mm}-${dd}`;
-      document.getElementById('admin-date').value = `${yyyy}-${mm}-${dd}`;
+      
+      const dateInput = document.getElementById('admin-date');
+      if (dateInput) {
+        dateInput.min = `${yyyy}-${mm}-${dd}`;
+        dateInput.value = `${yyyy}-${mm}-${dd}`;
+      }
+      
       updateTimeMin();
       adminTeam1Emails = [];
       adminTeam2Emails = [];
       renderAdminTeamEmails();
       updateAdminSportList();
-      document.getElementById('session-modal-backdrop').style.display = 'flex';
-      setTimeout(()=>document.getElementById('session-modal-backdrop').classList.add('active'),10);
+      
+      const modal = document.getElementById('session-modal-backdrop');
+      if (modal) {
+        modal.style.display = 'flex';
+        setTimeout(() => modal.classList.add('active'), 10);
+      }
     }
+
     function closeSessionModal() {
       const modal = document.getElementById('session-modal-backdrop');
-      modal.classList.remove('active');
-      setTimeout(()=>{ modal.style.display='none'; }, 210);
-      document.getElementById('admin-create-session-form').reset();
+      if (modal) {
+        modal.classList.remove('active');
+        setTimeout(() => { 
+          modal.style.display = 'none'; 
+        }, 210);
+      }
+      
+      const form = document.getElementById('admin-create-session-form');
+      if (form) form.reset();
+      
       adminTeam1Emails = [];
       adminTeam2Emails = [];
       renderAdminTeamEmails();
     }
+
     function addAdminPlayer(team) {
       const input = document.getElementById("admin-"+team+"-input");
+      if (!input) return;
+      
       const email = input.value.trim();
-      if (!email || !/^[^@]+@[^@]+\.[^@]+$/.test(email)) { input.value = ""; return; }
-      if(team==="team1") {
+      if (!email || !/^[^@]+@[^@]+\.[^@]+$/.test(email)) { 
+        input.value = ""; 
+        return; 
+      }
+      
+      if(team === "team1") {
         if (!adminTeam1Emails.includes(email)) adminTeam1Emails.push(email);
       } else {
         if (!adminTeam2Emails.includes(email)) adminTeam2Emails.push(email);
       }
+      
       input.value = "";
       renderAdminTeamEmails();
     }
+
     function removeAdminPlayer(team, idx) {
-      if(team==="team1") adminTeam1Emails.splice(idx,1);
-      else adminTeam2Emails.splice(idx,1);
+      if(team === "team1") adminTeam1Emails.splice(idx, 1);
+      else adminTeam2Emails.splice(idx, 1);
       renderAdminTeamEmails();
     }
+
     function renderAdminTeamEmails() {
-      document.getElementById("admin-team1-list").innerHTML = adminTeam1Emails.map((e,i)=>`
-        <span class="player-email-item">${e}<button type="button" class="remove-player-btn" onclick="removeAdminPlayer('team1',${i})">&times;</button></span>
-      `).join('');
-      document.getElementById("admin-team2-list").innerHTML = adminTeam2Emails.map((e,i)=>`
-        <span class="player-email-item">${e}<button type="button" class="remove-player-btn" onclick="removeAdminPlayer('team2',${i})">&times;</button></span>
-      `).join('');
+      const team1List = document.getElementById("admin-team1-list");
+      const team2List = document.getElementById("admin-team2-list");
+      
+      if (team1List) {
+        team1List.innerHTML = adminTeam1Emails.map((e,i) => `
+          <span class="player-email-item">${e}<button type="button" class="remove-player-btn" onclick="removeAdminPlayer('team1',${i})">&times;</button></span>
+        `).join('');
+      }
+      
+      if (team2List) {
+        team2List.innerHTML = adminTeam2Emails.map((e,i) => `
+          <span class="player-email-item">${e}<button type="button" class="remove-player-btn" onclick="removeAdminPlayer('team2',${i})">&times;</button></span>
+        `).join('');
+      }
     }
-    document.getElementById('admin-date').addEventListener('change', updateTimeMin);
+
     function updateTimeMin() {
       const dateInput = document.getElementById('admin-date');
       const timeInput = document.getElementById('admin-time');
+      
+      if (!dateInput || !timeInput) return;
+      
       const selectedDate = dateInput.value;
       const today = new Date();
       const yyyy = today.getFullYear();
       const mm = String(today.getMonth() + 1).padStart(2, '0');
       const dd = String(today.getDate()).padStart(2, '0');
+      
       if (selectedDate === `${yyyy}-${mm}-${dd}`) {
         const now = today.toTimeString().slice(0,5);
         timeInput.min = now;
@@ -1138,75 +1308,148 @@
       }
     }
 
-    document.getElementById('admin-create-session-form').onsubmit = async function(e) {
-      e.preventDefault();
-      const sport = document.getElementById("admin-sport").value;
-      const venue = document.getElementById("admin-venue").value;
-      const date = document.getElementById("admin-date").value;
-      const time = document.getElementById("admin-time").value;
-      const required = document.getElementById("admin-required").value;
-      const description = document.getElementById("admin-description").value;
-      if(!sport || !venue || !date || !time || !adminTeam1Emails.length || !adminTeam2Emails.length) {
-        alert("Please fill all fields and add at least one player in each team.");
+    // Add event listener for date change
+    document.addEventListener('DOMContentLoaded', function() {
+      const dateInput = document.getElementById('admin-date');
+      if (dateInput) {
+        dateInput.addEventListener('change', updateTimeMin);
+      }
+    });
+
+    // Form submission handler
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('admin-create-session-form');
+      if (form) {
+        form.onsubmit = async function(e) {
+          e.preventDefault();
+          
+          const sport = document.getElementById("admin-sport")?.value;
+          const venue = document.getElementById("admin-venue")?.value;
+          const date = document.getElementById("admin-date")?.value;
+          const time = document.getElementById("admin-time")?.value;
+          const required = document.getElementById("admin-required")?.value;
+          const description = document.getElementById("admin-description")?.value;
+          
+          if(!sport || !venue || !date || !time || !adminTeam1Emails.length || !adminTeam2Emails.length) {
+            alert("Please fill all fields and add at least one player in each team.");
+            return;
+          }
+          
+          const playerEmails = Array.from(new Set([...adminTeam1Emails, ...adminTeam2Emails]));
+          
+          try {
+            const res = await fetch('/api/sessions', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({
+                sport,
+                venue,
+                date,
+                time,
+                playerEmails,
+                description,
+                requiredPlayers: required,
+                createdBy: "admin",
+                team1: adminTeam1Emails,
+                team2: adminTeam2Emails
+              })
+            });
+            
+            if(res.ok) {
+              await reloadAdminData();
+              closeSessionModal();
+              alert("Session created. Added players will see it when they login.");
+            } else {
+              alert('Error creating session');
+            }
+          } catch (error) {
+            console.error('Error creating session:', error);
+            alert('Error creating session');
+          }
+        };
+      }
+    });
+// Manage Sessions (Admin: edit/delete session)
+function renderManageSessions() {
+  const container = document.getElementById('manage-sessions-list');
+  if (!container) return;
+  
+  const currentAdminEmail = adminEmail;
+  
+  if (!currentAdminEmail) {
+    container.innerHTML = "<div style='color:#b8eecb;'>Admin email not set. Please refresh.</div>";
+    return;
+  }
+  
+  const normalizedAdminEmail = currentAdminEmail.toLowerCase().trim();
+  
+  // Show BOTH: admin-created sessions AND sessions where admin is mentioned
+  const manageableSessions = sessions.filter(session => {
+    // Include admin-created sessions
+    if (session.createdBy === "admin") return true;
+    
+    // Include sessions where current admin is mentioned in player list (case-insensitive)
+    const adminPlayer = session.playerEmails.find(p => {
+      const normalizedPlayerEmail = p.email.toLowerCase().trim();
+      return normalizedPlayerEmail === normalizedAdminEmail;
+    });
+    return adminPlayer !== undefined;
+  });
+  
+  container.innerHTML = manageableSessions.map((s, idx) => `
+    <div class="session-box">
+      <div class="session-title">${s.sport} 
+        ${s.createdBy === "admin" ? '<span style="font-size:12px; color:#1db954;">(Admin Created)</span>' : '<span style="font-size:12px; color:#b8eecb;">(Mentioned by Player)</span>'}
+      </div>
+      <div class="session-info-row"><strong>Venue:</strong> ${s.venue}</div>
+      ${renderTeamInfo(s)}
+      <div class="session-info-row"><strong>Date:</strong> ${formatDate(s.date)}</div>
+      <div class="session-info-row"><strong>Required Players:</strong> ${s.requiredPlayers || 'Not specified'}</div>
+      <div class="session-info-row"><strong>Created By:</strong> ${s.createdBy || 'Player'}</div>
+      ${s.description ? `<div class="session-description-row"><strong>Description:</strong> ${s.description}</div>` : ''}
+      <div class="session-actions">
+        ${s.createdBy === "admin" ? `
+          <button class="edit-session-btn" title="Edit" onclick="openEditSessionModal('${s._id}')"><i class="fas fa-pen"></i></button>
+          <button class="delete-session-btn" title="Delete" onclick="deleteSession('${s._id}')"><i class="fas fa-trash"></i></button>
+        ` : `
+          <span style="color:#b8eecb; font-size:12px;">View Only</span>
+        `}
+      </div>
+    </div>
+  `).join('') || "<div style='color:#b8eecb;'>No sessions to manage.</div>";
+}
+    async function deleteSession(id) {
+      const session = sessions.find(s => s._id === id);
+      
+      // Only allow deletion of admin-created sessions
+      if (session && session.createdBy !== "admin") {
+        alert("You can only delete sessions created by admins.");
         return;
       }
-      // Save teams as separate arrays and as playerEmails array for compatibility
-      const playerEmails = Array.from(new Set([...adminTeam1Emails, ...adminTeam2Emails]));
-      const res = await fetch('/api/sessions', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          sport,
-          venue,
-          date,
-          time,
-          playerEmails,
-          description,
-          requiredPlayers: required,
-          createdBy: "admin",
-          team1: adminTeam1Emails,
-          team2: adminTeam2Emails
-        })
-      });
-      if(res.ok) {
-        await reloadAdminData();
-        closeSessionModal();
-        alert("Session created. Added players will see it when they login.");
-      } else {
-        alert('Error creating session');
-      }
-    };
-
-    // --- Manage Sessions (Admin: edit/delete session) ---
-    function renderManageSessions() {
-      const container = document.getElementById('manage-sessions-list');
-      container.innerHTML = sessions.map((s, idx) => `
-        <div class="session-box">
-          <div class="session-title">${s.sport}</div>
-          <div class="session-info-row"><strong>Venue:</strong> ${s.venue}</div>
-          <div class="session-teams-row"><strong>Team 1:</strong> ${Array.isArray(s.team1) && s.team1.length ? s.team1.join(', ') : ''}</div>
-          <div class="session-teams-row"><strong>Team 2:</strong> ${Array.isArray(s.team2) && s.team2.length ? s.team2.join(', ') : ''}</div>
-          <div class="session-info-row"><strong>Date:</strong> ${(new Date(s.date)).toLocaleString()}</div>
-          <div class="session-description-row"><strong>Description:</strong> ${s.description || "N/A"}</div>
-          <div class="session-actions">
-            <button class="edit-session-btn" title="Edit" onclick="openEditSessionModal('${s._id}')"><i class="fas fa-pen"></i></button>
-            <button class="delete-session-btn" title="Delete" onclick="deleteSession('${s._id}')"><i class="fas fa-trash"></i></button>
-          </div>
-        </div>
-      `).join('') || "<div style='color:#b8eecb;'>No sessions to manage.</div>";
-    }
-    async function deleteSession(id) {
+      
       if(confirm("Delete this session?")) {
-        // DELETE /api/sessions/:id
-        const res = await fetch(`/api/sessions/${id}`, { method: 'DELETE' });
-        if (res.ok) await reloadAdminData();
-        else alert('Error deleting session');
+        try {
+          const res = await fetch(`/api/sessions/${id}`, { method: 'DELETE' });
+          if (res.ok) await reloadAdminData();
+          else alert('Error deleting session');
+        } catch (error) {
+          console.error('Error deleting session:', error);
+          alert('Error deleting session');
+        }
       }
     }
+
     // --- Edit Session Modal ---
     function openEditSessionModal(sessionId) {
       const s = sessions.find(sess => sess._id === sessionId);
-      // Fill the form:
+      if (!s) return;
+      
+      // Only allow editing of admin-created sessions
+      if (s.createdBy !== "admin") {
+        alert("You can only edit sessions created by admins.");
+        return;
+      }
+      
       document.getElementById("edit-session-id").value = s._id;
       document.getElementById("edit-admin-sport").value = s.sport;
       document.getElementById("edit-admin-venue").value = s.venue;
@@ -1214,57 +1457,99 @@
       document.getElementById("edit-admin-time").value = s.date ? (new Date(s.date)).toISOString().slice(11,16) : "";
       document.getElementById("edit-admin-required").value = s.requiredPlayers || "";
       document.getElementById("edit-admin-description").value = s.description || "";
-      // For teams, parse from session if available
+      
       editTeam1Emails = Array.isArray(s.team1) ? [...s.team1] : [];
       editTeam2Emails = Array.isArray(s.team2) ? [...s.team2] : [];
       renderEditAdminTeamEmails();
       updateEditAdminSportList();
-      document.getElementById('edit-session-modal-backdrop').style.display = 'flex';
-      setTimeout(()=>document.getElementById('edit-session-modal-backdrop').classList.add('active'),10);
+      
+      const modal = document.getElementById('edit-session-modal-backdrop');
+      if (modal) {
+        modal.style.display = 'flex';
+        setTimeout(() => modal.classList.add('active'), 10);
+      }
     }
+
     function closeEditSessionModal() {
       const modal = document.getElementById('edit-session-modal-backdrop');
-      modal.classList.remove('active');
-      setTimeout(()=>{ modal.style.display='none'; }, 210);
-      document.getElementById('admin-edit-session-form').reset();
+      if (modal) {
+        modal.classList.remove('active');
+        setTimeout(() => { 
+          modal.style.display = 'none'; 
+        }, 210);
+      }
+      
+      const form = document.getElementById('admin-edit-session-form');
+      if (form) form.reset();
+      
       editTeam1Emails = [];
       editTeam2Emails = [];
       renderEditAdminTeamEmails();
     }
+
     function addEditAdminPlayer(team) {
       const input = document.getElementById("edit-admin-"+team+"-input");
+      if (!input) return;
+      
       const email = input.value.trim();
-      if (!email || !/^[^@]+@[^@]+\.[^@]+$/.test(email)) { input.value = ""; return; }
-      if(team==="team1") {
+      if (!email || !/^[^@]+@[^@]+\.[^@]+$/.test(email)) { 
+        input.value = ""; 
+        return; 
+      }
+      
+      if(team === "team1") {
         if (!editTeam1Emails.includes(email)) editTeam1Emails.push(email);
       } else {
         if (!editTeam2Emails.includes(email)) editTeam2Emails.push(email);
       }
+      
       input.value = "";
       renderEditAdminTeamEmails();
     }
+
     function removeEditAdminPlayer(team, idx) {
-      if(team==="team1") editTeam1Emails.splice(idx,1);
-      else editTeam2Emails.splice(idx,1);
+      if(team === "team1") editTeam1Emails.splice(idx, 1);
+      else editTeam2Emails.splice(idx, 1);
       renderEditAdminTeamEmails();
     }
+
     function renderEditAdminTeamEmails() {
-      document.getElementById("edit-admin-team1-list").innerHTML = editTeam1Emails.map((e,i)=>`
-        <span class="player-email-item">${e}<button type="button" class="remove-player-btn" onclick="removeEditAdminPlayer('team1',${i})">&times;</button></span>
-      `).join('');
-      document.getElementById("edit-admin-team2-list").innerHTML = editTeam2Emails.map((e,i)=>`
-        <span class="player-email-item">${e}<button type="button" class="remove-player-btn" onclick="removeEditAdminPlayer('team2',${i})">&times;</button></span>
-      `).join('');
+      const team1List = document.getElementById("edit-admin-team1-list");
+      const team2List = document.getElementById("edit-admin-team2-list");
+      
+      if (team1List) {
+        team1List.innerHTML = editTeam1Emails.map((e,i) => `
+          <span class="player-email-item">${e}<button type="button" class="remove-player-btn" onclick="removeEditAdminPlayer('team1',${i})">&times;</button></span>
+        `).join('');
+      }
+      
+      if (team2List) {
+        team2List.innerHTML = editTeam2Emails.map((e,i) => `
+          <span class="player-email-item">${e}<button type="button" class="remove-player-btn" onclick="removeEditAdminPlayer('team2',${i})">&times;</button></span>
+        `).join('');
+      }
     }
-    document.getElementById('edit-admin-date').addEventListener('change', updateEditTimeMin);
+
+    // Add event listener for edit date change
+    document.addEventListener('DOMContentLoaded', function() {
+      const dateInput = document.getElementById('edit-admin-date');
+      if (dateInput) {
+        dateInput.addEventListener('change', updateEditTimeMin);
+      }
+    });
+
     function updateEditTimeMin() {
       const dateInput = document.getElementById('edit-admin-date');
       const timeInput = document.getElementById('edit-admin-time');
+      
+      if (!dateInput || !timeInput) return;
+      
       const selectedDate = dateInput.value;
       const today = new Date();
       const yyyy = today.getFullYear();
       const mm = String(today.getMonth() + 1).padStart(2, '0');
       const dd = String(today.getDate()).padStart(2, '0');
+      
       if (selectedDate === `${yyyy}-${mm}-${dd}`) {
         const now = today.toTimeString().slice(0,5);
         timeInput.min = now;
@@ -1272,91 +1557,270 @@
         timeInput.min = "";
       }
     }
-    document.getElementById('admin-edit-session-form').onsubmit = async function(e) {
-      e.preventDefault();
-      const id = document.getElementById("edit-session-id").value;
-      const sport = document.getElementById("edit-admin-sport").value;
-      const venue = document.getElementById("edit-admin-venue").value;
-      const date = document.getElementById("edit-admin-date").value;
-      const time = document.getElementById("edit-admin-time").value;
-      const required = document.getElementById("edit-admin-required").value;
-      const description = document.getElementById("edit-admin-description").value;
-      if(!sport || !venue || !date || !time || !editTeam1Emails.length || !editTeam2Emails.length) {
-        alert("Please fill all fields and add at least one player in each team.");
-        return;
-      }
-      const playerEmails = Array.from(new Set([...editTeam1Emails, ...editTeam2Emails]));
-      // PUT /api/sessions/:id
-      const res = await fetch(`/api/sessions/${id}`, {
-        method: 'PUT',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          sport,
-          venue,
-          date,
-          time,
-          playerEmails,
-          description,
-          requiredPlayers: required,
-          team1: editTeam1Emails,
-          team2: editTeam2Emails
-        })
-      });
-      if(res.ok) {
-        await reloadAdminData();
-        closeEditSessionModal();
-        alert("Session updated.");
-      } else {
-        alert('Error updating session');
-      }
-    };
 
-    // --- Joined Sessions Tab (only if admin's email is in playerEmails) ---
-    function renderJoinedSessions() {
-      // For demo, use admin email from first admin user in DB or fallback
-      const adminEmail = players.find(p=>p.role==='admin')?.email || "admin@gmail.com";
-      let html = "";
-      sessions.forEach(s=>{
-        // Show session only if admin email is in playerEmails
-        if (!s.playerEmails || !Array.isArray(s.playerEmails)) return;
-        if (!s.playerEmails.some(p=>p.email === adminEmail)) return;
-        html += `<div style="background:rgba(255,255,255,0.10);border-radius:9px;padding:13px 18px;margin-bottom:10px;border:1px solid var(--primary-dark);">
-          <b>${s.sport}</b> @ ${s.venue}<br/>
-          <span style="color:#b8eecb;">${(new Date(s.date)).toLocaleString()}</span><br/>
-          <span style="font-size:0.98em;">Players: ${s.playerEmails.map(p=>p.email).join(', ')}</span>
-        `;
-        // Show cancelled info for this session if any
-        const cancelForThisSession = cancelledSessionsData.find(cs=>cs._id === s._id);
-        if(cancelForThisSession && cancelForThisSession.cancelledPlayers.length>0) {
-          html += `<div style="margin-top:7px;color:#ff6b6b;"><b>Cancelled by:</b> ${
-            cancelForThisSession.cancelledPlayers.map(p=>`${p.email} (${p.cancelReason||'No reason'})`).join(', ')
-          }</div>`;
+    // Edit form submission handler
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('admin-edit-session-form');
+      if (form) {
+        form.onsubmit = async function(e) {
+          e.preventDefault();
+          
+          const id = document.getElementById("edit-session-id")?.value;
+          const sport = document.getElementById("edit-admin-sport")?.value;
+          const venue = document.getElementById("edit-admin-venue")?.value;
+          const date = document.getElementById("edit-admin-date")?.value;
+          const time = document.getElementById("edit-admin-time")?.value;
+          const required = document.getElementById("edit-admin-required")?.value;
+          const description = document.getElementById("edit-admin-description")?.value;
+          
+          if(!sport || !venue || !date || !time || !editTeam1Emails.length || !editTeam2Emails.length) {
+            alert("Please fill all fields and add at least one player in each team.");
+            return;
+          }
+          
+          const playerEmails = Array.from(new Set([...editTeam1Emails, ...editTeam2Emails]));
+          
+          try {
+            const res = await fetch(`/api/sessions/${id}`, {
+              method: 'PUT',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({
+                sport,
+                venue,
+                date,
+                time,
+                playerEmails,
+                description,
+                requiredPlayers: required,
+                team1: editTeam1Emails,
+                team2: editTeam2Emails
+              })
+            });
+            
+            if(res.ok) {
+              await reloadAdminData();
+              closeEditSessionModal();
+              alert("Session updated.");
+            } else {
+              alert('Error updating session');
+            }
+          } catch (error) {
+            console.error('Error updating session:', error);
+            alert('Error updating session');
+          }
+        };
+      }
+    });
+// Available Sessions Tab (sessions where current admin is listed but hasn't joined)
+function renderAvailableSessions() {
+  const container = document.getElementById('available-sessions-list');
+  if (!container) return;
+  
+  const currentAdminEmail = adminEmail;
+  
+  if (!currentAdminEmail) {
+    container.innerHTML = "<div style='color:#b8eecb;'>Admin email not set. Please refresh.</div>";
+    return;
+  }
+  
+  const availableSessions = sessions.filter(session => {
+    const normalizedAdminEmail = currentAdminEmail.toLowerCase().trim();
+    const adminPlayer = session.playerEmails.find(p => {
+      const normalizedPlayerEmail = p.email.toLowerCase().trim();
+      return normalizedPlayerEmail === normalizedAdminEmail && !p.joined && !p.cancelled;
+    });
+    return adminPlayer !== undefined;
+  });
+  
+  container.innerHTML = availableSessions.map(s => {
+    const normalizedAdminEmail = currentAdminEmail.toLowerCase().trim();
+    const adminPlayer = s.playerEmails.find(p => 
+      p.email.toLowerCase().trim() === normalizedAdminEmail
+    );
+    const adminEmailToUse = adminPlayer ? adminPlayer.email : currentAdminEmail;
+    
+    return `
+    <div class="session-box">
+      <div class="session-title">${s.sport}</div>
+      <div class="session-info-row"><strong>Venue:</strong> ${s.venue}</div>
+      ${renderTeamInfo(s)}
+      <div class="session-info-row"><strong>Date:</strong> ${formatDate(s.date)}</div>
+      <div class="session-info-row"><strong>Required Players:</strong> ${s.requiredPlayers || 'Not specified'}</div>
+      <div class="session-info-row"><strong>Created By:</strong> ${s.createdBy || 'Player'}</div>
+      ${s.description ? `<div class="session-description-row"><strong>Description:</strong> ${s.description}</div>` : ''}
+      <div class="session-actions">
+        <button class="action-btn join" onclick="adminJoinSession('${s._id}', '${adminEmailToUse}')">Join</button>
+      </div>
+    </div>
+    `;
+  }).join('') || "<div style='color:#b8eecb;'>No available sessions.</div>";
+}    // Admin Join Session
+async function adminJoinSession(sessionId, adminEmailToUse) {
+  if(!confirm("Do you want to join this session?")) return;
+  
+  const emailToUse = adminEmailToUse || adminEmail;
+  if (!emailToUse) {
+    alert("Admin email not set. Please refresh the page.");
+    return;
+  }
+  
+  try {
+    const res = await fetch('/api/sessions/join', {
+      method: 'PATCH',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ sessionId, playerEmail: emailToUse })
+    });
+    
+    const data = await res.json();
+    if(res.ok) {
+      alert("Successfully joined the session!");
+      // Force reload to update the UI immediately
+      await reloadAdminData();
+      // Switch to Joined Sessions tab to show the joined session
+      showTab('joined');
+    } else {
+      alert(data.message || "Unable to join session.");
+    }
+  } catch (error) {
+    console.error('Error joining session:', error);
+    alert('Unable to join session.');
+  }
+}
+
+// --- Joined Sessions Tab (sessions where admin has joined) ---
+function renderJoinedSessions() {
+  const container = document.getElementById('admin-joined-sessions');
+  if (!container) return;
+  
+  const currentAdminEmail = adminEmail;
+  const joinedSessions = sessions.filter(session => {
+    const player = session.playerEmails.find(p => p.email === currentAdminEmail);
+    return player && player.joined && !player.cancelled;
+  });
+  
+  container.innerHTML = joinedSessions.map(s => {
+    const normalizedAdminEmail = currentAdminEmail.toLowerCase().trim();
+    const adminPlayer = s.playerEmails.find(p => 
+      p.email.toLowerCase().trim() === normalizedAdminEmail
+    );
+    const adminEmailToUse = adminPlayer ? adminPlayer.email : currentAdminEmail;
+    
+    return `
+    <div class="session-box">
+      <div class="session-title">${s.sport} <span class="session-status joined">Joined</span></div>
+      <div class="session-info-row"><strong>Venue:</strong> ${s.venue}</div>
+      ${renderTeamInfo(s)}
+      <div class="session-info-row"><strong>Date:</strong> ${formatDate(s.date)}</div>
+      <div class="session-info-row"><strong>Required Players:</strong> ${s.requiredPlayers || 'Not specified'}</div>
+      <div class="session-info-row"><strong>Created By:</strong> ${s.createdBy || 'Player'}</div>
+      ${s.description ? `<div class="session-description-row"><strong>Description:</strong> ${s.description}</div>` : ''}
+      <div class="session-actions">
+        <button class="action-btn cancel" onclick="adminCancelSession('${s._id}', '${adminEmailToUse}')">Cancel</button>
+      </div>
+    </div>
+    `;
+  }).join('') || "<div style='color:#b8eecb;'>No joined sessions.</div>";
+}    // --- Admin Cancel Session ---
+    async function adminCancelSession(sessionId, adminEmailToUse) {
+      const reason = prompt("Enter reason for cancellation:");
+      if(reason === null) return;
+      
+      const emailToUse = adminEmailToUse || adminEmail;
+      
+      try {
+        const res = await fetch('/api/sessions/cancel', {
+          method: 'PATCH',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ sessionId, playerEmail: emailToUse, reason })
+        });
+        
+        const data = await res.json();
+        if(res.ok) {
+          alert("Cancelled session.");
+          reloadAdminData();
+        } else {
+          alert(data.message || "Unable to cancel session.");
         }
-        html += `</div>`;
-      });
-      document.getElementById("admin-joined-sessions").innerHTML = html || "<div style='color:#b8eecb;'>No joined sessions for admin email.</div>";
+      } catch (error) {
+        console.error('Error cancelling session:', error);
+        alert('Unable to cancel session.');
+      }
     }
 
-    // --- Cancelled Sessions Tab ---
-    function renderCancelledSessions() {
-      const container = document.getElementById('cancelled-sessions-list');
-      container.innerHTML = cancelledSessionsData.map(cs => `
-        <div class="session-box">
-          <div class="session-title">${cs.sport}</div>
-          <div class="session-info-row"><strong>Venue:</strong> ${cs.venue}</div>
-          <div class="session-teams-row"><strong>Team 1:</strong> ${Array.isArray(cs.team1) ? cs.team1.join(', ') : ''}</div>
-          <div class="session-teams-row"><strong>Team 2:</strong> ${Array.isArray(cs.team2) ? cs.team2.join(', ') : ''}</div>
-          <div class="session-info-row"><strong>Date:</strong> ${(new Date(cs.date)).toLocaleString()}</div>
-          <div class="session-description-row"><strong>Description:</strong> ${cs.description || "N/A"}</div>
-          <div class="cancelled-by-row">
-            <b>Cancelled by:</b>
-            ${cs.cancelledPlayers.map(p=>`${p.email} <span class="cancel-reason-row">(Reason: ${p.cancelReason||"No reason"})</span>`).join('<br/>')}
-          </div>
+// --- Cancelled Sessions Tab ---
+function renderCancelledSessions() {
+  const container = document.getElementById('cancelled-sessions-list');
+  if (!container) return;
+  
+  const currentUserEmail = adminEmail;
+  
+  // Get TWO types of cancelled sessions:
+  
+  // Type 1: Sessions where admin personally cancelled
+  const sessionsICancelled = sessions.filter(session => {
+    const userPlayer = session.playerEmails.find(p => p.email === currentUserEmail);
+    return userPlayer && userPlayer.cancelled;
+  });
+  
+  // Type 2: Sessions created by admin that have cancellations
+  const sessionsICreatedWithCancellations = sessions.filter(session => {
+    const isCreator = session.createdBy === "admin";
+    if (!isCreator) return false;
+    
+    // Check if any player has cancelled this session (excluding self-cancellation for display)
+    const otherPlayersCancelled = session.playerEmails.some(p => 
+      p.cancelled && p.email !== currentUserEmail
+    );
+    return otherPlayersCancelled;
+  });
+  
+  // Combine both types
+  const allCancelledSessions = [...sessionsICancelled, ...sessionsICreatedWithCancellations];
+  
+  container.innerHTML = allCancelledSessions.map(s => {
+    const isCreator = s.createdBy === "admin";
+    const userPlayer = s.playerEmails.find(p => p.email === currentUserEmail);
+    const cancelledPlayers = s.playerEmails.filter(p => p.cancelled);
+    
+    if (isCreator) {
+      // Admin created this session, show "Cancelled by Players"
+      return `
+      <div class="session-box">
+        <div class="session-title">${s.sport} <span class="session-status cancelled">Cancelled by Players</span></div>
+        <div class="session-info-row"><strong>Venue:</strong> ${s.venue}</div>
+        ${renderTeamInfo(s)}
+        <div class="session-info-row"><strong>Date:</strong> ${formatDate(s.date)}</div>
+        <div class="session-info-row"><strong>Required Players:</strong> ${s.requiredPlayers || 'Not specified'}</div>
+        ${s.description ? `<div class="session-description-row"><strong>Description:</strong> ${s.description}</div>` : ''}
+        <div class="cancelled-by-row">
+          <strong>Players who cancelled:</strong><br/>
+          ${cancelledPlayers.filter(p => p.email !== currentUserEmail).map(p => 
+            `${p.email} (Reason: ${p.cancelReason || "No reason provided"})`
+          ).join('<br/>')}
         </div>
-      `).join('') || "<div style='color:#b8eecb;'>No cancelled sessions.</div>";
+      </div>
+      `;
+    } else {
+      // Admin cancelled this session, show "Cancelled by me"
+      return `
+      <div class="session-box">
+        <div class="session-title">${s.sport} <span class="session-status cancelled">Cancelled by me</span></div>
+        <div class="session-info-row"><strong>Venue:</strong> ${s.venue}</div>
+        ${renderTeamInfo(s)}
+        <div class="session-info-row"><strong>Date:</strong> ${formatDate(s.date)}</div>
+        <div class="session-info-row"><strong>Required Players:</strong> ${s.requiredPlayers || 'Not specified'}</div>
+        <div class="session-info-row"><strong>Created By:</strong> ${s.createdBy}</div>
+        ${s.description ? `<div class="session-description-row"><strong>Description:</strong> ${s.description}</div>` : ''}
+        <div class="cancelled-by-row">
+          <strong>Your cancellation reason:</strong> ${userPlayer.cancelReason || "No reason provided"}
+        </div>
+      </div>
+      `;
     }
+  }).join('') || "<div style='color:#b8eecb;'>No cancelled sessions.</div>";
+}
 
-    // --- Reports Tab ---
+    // Reports Tab
     function renderReports() {
       // Session Analytics
       const totalSessions = sessions.length;
@@ -1365,10 +1829,15 @@
       const completedSessions = sessions.filter(s => new Date(s.date) <= now).length;
       const cancellationRate = totalSessions > 0 ? Math.round((cancelledSessionsData.length / totalSessions) * 100) : 0;
 
-      document.getElementById('total-sessions-count').textContent = totalSessions;
-      document.getElementById('upcoming-sessions-count').textContent = upcomingSessions;
-      document.getElementById('completed-sessions-count').textContent = completedSessions;
-      document.getElementById('cancellation-rate').textContent = cancellationRate + '%';
+      const totalSessionsEl = document.getElementById('total-sessions-count');
+      const upcomingSessionsEl = document.getElementById('upcoming-sessions-count');
+      const completedSessionsEl = document.getElementById('completed-sessions-count');
+      const cancellationRateEl = document.getElementById('cancellation-rate');
+      
+      if (totalSessionsEl) totalSessionsEl.textContent = totalSessions;
+      if (upcomingSessionsEl) upcomingSessionsEl.textContent = upcomingSessions;
+      if (completedSessionsEl) completedSessionsEl.textContent = completedSessions;
+      if (cancellationRateEl) cancellationRateEl.textContent = cancellationRate + '%';
 
       // Sport Popularity
       const sportStats = {};
@@ -1380,102 +1849,30 @@
       });
 
       const sportStatsList = document.getElementById('sport-stats-list');
-      sportStatsList.innerHTML = '';
-      
-      Object.entries(sportStats)
-        .sort((a, b) => b[1] - a[1])
-        .forEach(([sport, count]) => {
-          const percentage = Math.round((count / totalSessions) * 100);
-          sportStatsList.innerHTML += `
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <span>${sport}</span>
-              <div style="display:flex; align-items:center; gap:10px;">
-                <div style="width:100px; height:8px; background:rgba(255,255,255,0.2); border-radius:4px;">
-                  <div style="width:${percentage}%; height:100%; background:var(--primary); border-radius:4px;"></div>
+      if (sportStatsList) {
+        sportStatsList.innerHTML = '';
+        
+        Object.entries(sportStats)
+          .sort((a, b) => b[1] - a[1])
+          .forEach(([sport, count]) => {
+            const percentage = totalSessions > 0 ? Math.round((count / totalSessions) * 100) : 0;
+            sportStatsList.innerHTML += `
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span>${sport}</span>
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <div style="width:100px; height:8px; background:rgba(255,255,255,0.2); border-radius:4px;">
+                    <div style="width:${percentage}%; height:100%; background:var(--primary); border-radius:4px;"></div>
+                  </div>
+                  <span>${percentage}% (${count})</span>
                 </div>
-                <span>${percentage}% (${count})</span>
               </div>
-            </div>
-          `;
-        });
-
-      // Player Participation
-      const totalPlayers = players.length;
-      const activePlayers = players.filter(p => p.isVerified).length;
-      
-      // Calculate average participation
-      const playerParticipation = {};
-      sessions.forEach(session => {
-        if (session.playerEmails) {
-          session.playerEmails.forEach(player => {
-            if (!playerParticipation[player.email]) {
-              playerParticipation[player.email] = 0;
-            }
-            playerParticipation[player.email]++;
+            `;
           });
-        }
-      });
-      
-      const avgParticipation = totalPlayers > 0 ? 
-        Math.round(Object.values(playerParticipation).reduce((a, b) => a + b, 0) / totalPlayers) : 0;
-      
-      const topParticipant = Object.entries(playerParticipation)
-        .sort((a, b) => b[1] - a[1])[0] || ['-', 0];
-
-      document.getElementById('total-players-count').textContent = totalPlayers;
-      document.getElementById('active-players-count').textContent = activePlayers;
-      document.getElementById('avg-participation').textContent = avgParticipation;
-      document.getElementById('top-participant').textContent = topParticipant[0].split('@')[0];
-
-      // Recent Activity
-      const recentActivityTable = document.getElementById('recent-activity-table');
-      recentActivityTable.innerHTML = '';
-      
-      // Get recent sessions (last 5)
-      const recentSessions = sessions
-        .sort((a, b) => new Date(b.date) - new Date(a.date))
-        .slice(0, 5);
-      
-      recentSessions.forEach(session => {
-        const activityType = new Date(session.date) > now ? 'Upcoming' : 'Completed';
-        recentActivityTable.innerHTML += `
-          <tr>
-            <td>${new Date(session.date).toLocaleDateString()}</td>
-            <td>${activityType} Session</td>
-            <td>${session.sport} at ${session.venue}</td>
-          </tr>
-        `;
-      });
-
-      // Add recent cancellations
-      const recentCancellations = cancelledSessionsData
-        .flatMap(session => 
-          session.cancelledPlayers.map(player => ({
-            date: new Date(session.date),
-            player: player.email,
-            sport: session.sport,
-            reason: player.cancelReason
-          }))
-        )
-        .sort((a, b) => b.date - a.date)
-        .slice(0, 3);
-      
-      recentCancellations.forEach(cancellation => {
-        recentActivityTable.innerHTML += `
-          <tr>
-            <td>${cancellation.date.toLocaleDateString()}</td>
-            <td>Cancellation</td>
-            <td>${cancellation.player.split('@')[0]} cancelled ${cancellation.sport}</td>
-          </tr>
-        `;
-      });
+      }
     }
 
     function exportReports() {
       alert('Export functionality would generate a PDF report here. This would typically use a library like jsPDF or window.print() for implementation.');
-      // In a real implementation, you would use:
-      // window.print(); // For basic printing
-      // Or use jsPDF library for PDF generation
     }
 
     function logout() {
@@ -1485,14 +1882,16 @@
     }
 
     // Set min date for session creation to today
-    (function setDateMin() {
+    document.addEventListener('DOMContentLoaded', function() {
       const today = new Date();
       const yyyy = today.getFullYear();
       const mm = String(today.getMonth() + 1).padStart(2, '0');
       const dd = String(today.getDate()).padStart(2, '0');
-      document.getElementById('admin-date').min = `${yyyy}-${mm}-${dd}`;
-      document.getElementById('admin-date').value = `${yyyy}-${mm}-${dd}`;
-    })();
+      
+      const dateInput = document.getElementById('admin-date');
+      if (dateInput) {
+        dateInput.min = `${yyyy}-${mm}-${dd}`;
+        dateInput.value = `${yyyy}-${mm}-${dd}`;
+      }
+    });
   </script>
-</body>
-</html>

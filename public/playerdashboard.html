@@ -209,102 +209,11 @@
       font-weight: 700;
       color: #fff;
     }
-    /* Next Match Big Box */
-    .next-match-container {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 28px;
-      margin-bottom: 33px;
-    }
-    .next-match-card {
-      background: var(--card-bg);
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-      padding: 30px;
-      border: 1.5px solid var(--primary);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      position: relative;
-      overflow: hidden;
-    }
-    .next-match-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, var(--primary), var(--primary-dark));
-    }
-    .next-match-label {
-      font-size: 1rem;
-      color: #b8eecb;
-      font-weight: 500;
-      margin-bottom: 10px;
-    }
-    .next-match-sport {
-      font-size: 2.2rem;
-      font-weight: 700;
-      color: var(--primary);
-      margin-bottom: 15px;
-    }
-    .next-match-details {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .next-match-detail {
+    .stat-next-match {
       font-size: 1.1rem;
-      color: #fff;
-    }
-    .next-match-detail strong {
-      color: #b8eecb;
-      margin-right: 10px;
-    }
-    .no-next-match {
-      font-size: 1.2rem;
-      color: #b8eecb;
-      text-align: center;
-      padding: 20px;
-    }
-    .quick-stats-card {
-      background: var(--card-bg);
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-      padding: 30px;
-      border: 1.5px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-    .quick-stats-title {
-      font-size: 1.3rem;
+      color: var(--primary);
       font-weight: 600;
-      color: var(--primary);
-      margin-bottom: 20px;
-      text-align: center;
-    }
-    .quick-stats-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
-    }
-    .quick-stat {
-      text-align: center;
-      padding: 15px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 10px;
-    }
-    .quick-stat-number {
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--primary);
-      margin-bottom: 5px;
-    }
-    .quick-stat-label {
-      font-size: 0.9rem;
-      color: #b8eecb;
+      margin-top: 5px;
     }
     /* Tabs */
     .tabs-row {
@@ -374,7 +283,7 @@
     .session-info-row strong {
       color: #fff;
       display: inline-block;
-      min-width: 140px;
+      min-width: 120px;
     }
     .session-teams-row {
       margin-bottom: 3px;
@@ -384,7 +293,7 @@
     .session-teams-row strong {
       color: #fff;
       display: inline-block;
-      min-width: 140px;
+      min-width: 120px;
     }
     .session-description-row {
       color: #fff;
@@ -394,7 +303,7 @@
     .session-description-row strong {
       color: #fff;
       display: inline-block;
-      min-width: 140px;
+      min-width: 120px;
     }
     .session-actions {
       position: absolute;
@@ -619,17 +528,10 @@
     @media (max-width: 1020px) {
       .stats-row { flex-direction: column; gap: 17px;}
       .stat-card { min-width: 120px; }
-      .next-match-container {
-        grid-template-columns: 1fr;
-      }
     }
     @media (max-width: 700px) {
       header { padding: 16px 6vw 12px 6vw; }
       .main-content { padding: 0 2vw 32px 2vw;}
-      .tabs-row {
-        overflow-x: auto;
-        padding-bottom: 10px;
-      }
     }
     @media (max-width: 500px) {
       .modal-content { padding: 0;}
@@ -642,9 +544,6 @@
         position: static;
         margin-top: 15px;
         justify-content: flex-end;
-      }
-      .quick-stats-grid {
-        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -678,6 +577,7 @@
         <div class="stat-info">
           <span class="stat-label">Created Sessions</span>
           <span class="stat-value" id="stat-created-sessions">0</span>
+          <span class="stat-next-match" id="next-created-match">—</span>
         </div>
       </div>
       <div class="stat-card">
@@ -685,6 +585,7 @@
         <div class="stat-info">
           <span class="stat-label">Joined Sessions</span>
           <span class="stat-value" id="stat-joined-sessions">0</span>
+          <span class="stat-next-match" id="next-joined-match">—</span>
         </div>
       </div>
       <div class="stat-card">
@@ -702,35 +603,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Next Match Big Box -->
-    <div class="next-match-container">
-      <div class="next-match-card" id="next-match-card">
-        <!-- Next match content will be populated by JavaScript -->
-      </div>
-      <div class="quick-stats-card">
-        <div class="quick-stats-title">Quick Stats</div>
-        <div class="quick-stats-grid">
-          <div class="quick-stat">
-            <div class="quick-stat-number" id="quick-created">0</div>
-            <div class="quick-stat-label">Created</div>
-          </div>
-          <div class="quick-stat">
-            <div class="quick-stat-number" id="quick-joined">0</div>
-            <div class="quick-stat-label">Joined</div>
-          </div>
-          <div class="quick-stat">
-            <div class="quick-stat-number" id="quick-available">0</div>
-            <div class="quick-stat-label">Available</div>
-          </div>
-          <div class="quick-stat">
-            <div class="quick-stat-number" id="quick-cancelled">0</div>
-            <div class="quick-stat-label">Cancelled</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- Tabs -->
     <div class="tabs-row">
       <button class="tab-btn active" onclick="showTab('create')">Create Sessions</button>
@@ -805,7 +677,7 @@
         </div>
         <div class="form-group">
           <label for="required">How many players required?</label>
-          <input type="number" id="required" min="0" placeholder="Required players" required />
+          <input type="number" id="required" min="0" placeholder="Required players" />
         </div>
         <div class="form-group">
           <label for="description">Description (Optional)</label>
@@ -862,7 +734,7 @@
         </div>
         <div class="form-group">
           <label for="edit-required">How many players required?</label>
-          <input type="number" id="edit-required" min="0" placeholder="Required players" required />
+          <input type="number" id="edit-required" min="0" placeholder="Required players" />
         </div>
         <div class="form-group">
           <label for="edit-description">Description (Optional)</label>
@@ -874,7 +746,7 @@
     </div>
   </div>
   <script>
-    // --- USER PROFILE ---
+    // USER PROFILE
     let user = JSON.parse(localStorage.getItem('currentUser')) || {};
 
     function fillUserInfo() {
@@ -891,12 +763,18 @@
     }
     fillUserInfo();
 
-    // --- TABS LOGIC ---
+    // TABS LOGIC
     function showTab(tab) {
       ['create','joined','available','manage','cancelled'].forEach(t => {
         document.getElementById('tab-'+t).style.display = t===tab ? '' : 'none';
         document.querySelectorAll('.tab-btn').forEach((btn,idx) => {
-          btn.classList.toggle('active', (tab==='create' && idx===0) || (tab==='joined' && idx===1) || (tab==='available' && idx===2) || (tab==='manage' && idx===3) || (tab==='cancelled' && idx===4));
+          btn.classList.toggle('active', 
+            (tab==='create' && idx===0) || 
+            (tab==='joined' && idx===1) || 
+            (tab==='available' && idx===2) || 
+            (tab==='manage' && idx===3) ||
+            (tab==='cancelled' && idx===4)
+          );
         });
       });
       if(tab==='joined') renderJoinedSessions();
@@ -905,13 +783,13 @@
       if(tab==='cancelled') renderCancelledSessions();
     }
 
-    // --- STATE ---
+    // STATE
     let team1Emails = [], team2Emails = [];
     let editTeam1Emails = [], editTeam2Emails = [];
     let sports = [];
     let allSessions = [];
 
-    // --- API HELPERS ---
+    // API HELPERS
     async function fetchSports() {
       const res = await fetch('/api/sports');
       if (!res.ok) return [];
@@ -923,7 +801,7 @@
       return await res.json();
     }
 
-    // --- RENDER SPORTS LIST INTO SELECT ---
+    // RENDER SPORTS LIST INTO SELECT
     async function populateSportsDropdown() {
       sports = await fetchSports();
       const sel = document.getElementById('sport');
@@ -940,11 +818,10 @@
       });
     }
 
-    // --- FETCH AND CLASSIFY SESSIONS ---
+    // FETCH AND CLASSIFY SESSIONS
     async function reloadSessions() {
       allSessions = await fetchPlayerSessions();
       updateStats();
-      renderNextMatch();
       renderAllSessionLists();
     }
 
@@ -955,68 +832,74 @@
       document.getElementById("stat-available-sessions").textContent = available.length;
       document.getElementById("stat-manage-sessions").textContent = created.length;
       
-      // Update quick stats
-      document.getElementById("quick-created").textContent = created.length;
-      document.getElementById("quick-joined").textContent = joined.length;
-      document.getElementById("quick-available").textContent = available.length;
-      document.getElementById("quick-cancelled").textContent = cancelled.length;
+      // Update next match information
+      updateNextMatchInfo(created, joined);
     }
 
-    function renderNextMatch() {
-      const {joined, created} = classifySessions();
-      const allUpcomingSessions = [...joined, ...created]
-        .filter(s => new Date(s.date) > new Date())
-        .sort((a, b) => new Date(a.date) - new Date(b.date));
-      
-      const nextMatchCard = document.getElementById('next-match-card');
-      
-      if (allUpcomingSessions.length > 0) {
-        const nextMatch = allUpcomingSessions[0];
-        nextMatchCard.innerHTML = `
-          <div class="next-match-label">Your Next Match</div>
-          <div class="next-match-sport">${nextMatch.sport}</div>
-          <div class="next-match-details">
-            <div class="next-match-detail"><strong>Venue:</strong> ${nextMatch.venue}</div>
-            <div class="next-match-detail"><strong>Date & Time:</strong> ${formatDate(nextMatch.date)}</div>
-            <div class="next-match-detail"><strong>Created By:</strong> ${nextMatch.createdBy}</div>
-            <div class="next-match-detail"><strong>Required Players:</strong> ${nextMatch.requiredPlayers || 'Not specified'}</div>
-            ${nextMatch.description ? `<div class="next-match-detail"><strong>Description:</strong> ${nextMatch.description}</div>` : ''}
-          </div>
-        `;
-      } else {
-        nextMatchCard.innerHTML = `
-          <div class="no-next-match">
-            <i class="fas fa-calendar-times" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
-            <div>No upcoming matches scheduled</div>
-          </div>
-        `;
+    function updateNextMatchInfo(createdSessions, joinedSessions) {
+      // Find next match from created sessions
+      const upcomingCreated = createdSessions.filter(s => new Date(s.date) > new Date());
+      let nextCreatedMatch = "—";
+      if (upcomingCreated.length > 0) {
+        const nextCreated = upcomingCreated.sort((a,b) => new Date(a.date) - new Date(b.date))[0];
+        nextCreatedMatch = `${nextCreated.sport} (${formatDateShort(nextCreated.date)})`;
       }
+      document.getElementById("next-created-match").textContent = nextCreatedMatch;
+      
+      // Find next match from joined sessions
+      const upcomingJoined = joinedSessions.filter(s => new Date(s.date) > new Date());
+      let nextJoinedMatch = "—";
+      if (upcomingJoined.length > 0) {
+        const nextJoined = upcomingJoined.sort((a,b) => new Date(a.date) - new Date(b.date))[0];
+        nextJoinedMatch = `${nextJoined.sport} (${formatDateShort(nextJoined.date)})`;
+      }
+      document.getElementById("next-joined-match").textContent = nextJoinedMatch;
     }
 
-    function classifySessions() {
-      // Categorize sessions for this player
-      const created = allSessions.filter(s => s.createdBy === user.email);
-      const joined = allSessions.filter(s => {
-        if (s.createdBy === user.email) return false;
-        const p = s.playerEmails.find(p => p.email === user.email);
-        return p && p.joined && !p.cancelled;
+    function formatDateShort(dtStr) {
+      const dt = new Date(dtStr);
+      return dt.toLocaleString('en-IN', {
+        day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
       });
-      const available = allSessions.filter(s => {
-        if (s.createdBy === user.email) return false;
-        const p = s.playerEmails.find(p => p.email === user.email);
-        return p && !p.joined && !p.cancelled;
-      });
-      const cancelled = allSessions.filter(s => {
-        const p = s.playerEmails.find(p => p.email === user.email);
-        return p && p.cancelled;
-      });
-      return {created, joined, available, cancelled};
     }
 
+function classifySessions() {
+  // Categorize sessions for this player
+  const created = allSessions.filter(s => s.createdBy === user.email);
+  const joined = allSessions.filter(s => {
+    if (s.createdBy === user.email) return false;
+    const p = s.playerEmails.find(p => p.email === user.email);
+    return p && p.joined && !p.cancelled;
+  });
+  const available = allSessions.filter(s => {
+    if (s.createdBy === user.email) return false;
+    const p = s.playerEmails.find(p => p.email === user.email);
+    return p && !p.joined && !p.cancelled;
+  });
+  
+  // Sessions where player personally cancelled
+  const sessionsICancelled = allSessions.filter(s => {
+    const p = s.playerEmails.find(p => p.email === user.email);
+    return p && p.cancelled;
+  });
+  
+  // Sessions created by player that have cancellations from others
+  const sessionsICreatedWithCancellations = created.filter(s => 
+    s.playerEmails.some(p => p.cancelled && p.email !== user.email)
+  );
+  
+  return { 
+    created, 
+    joined, 
+    available, 
+    sessionsICancelled, 
+    sessionsICreatedWithCancellations 
+  };
+}
     function formatDate(dtStr) {
       const dt = new Date(dtStr);
       return dt.toLocaleString('en-IN', {
-        day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+        day: '2-digit', month: 'short', year: '2-digit', hour: '2-digit', minute: '2-digit'
       });
     }
 
@@ -1036,8 +919,8 @@
           <div class="session-title">${s.sport} <span class="session-status joined">Joined</span></div>
           <div class="session-info-row"><strong>Venue:</strong> ${s.venue}</div>
           <div class="session-info-row"><strong>Date:</strong> ${formatDate(s.date)}</div>
-          <div class="session-info-row"><strong>Created By:</strong> ${s.createdBy}</div>
           <div class="session-info-row"><strong>Required Players:</strong> ${s.requiredPlayers || 'Not specified'}</div>
+          <div class="session-info-row"><strong>Created By:</strong> ${s.createdBy}</div>
           ${renderTeamInfo(s)}
           ${s.description ? `<div class="session-description-row"><strong>Description:</strong> ${s.description}</div>` : ''}
           <div class="session-actions">
@@ -1056,8 +939,8 @@
           <div class="session-title">${s.sport}</div>
           <div class="session-info-row"><strong>Venue:</strong> ${s.venue}</div>
           <div class="session-info-row"><strong>Date:</strong> ${formatDate(s.date)}</div>
-          <div class="session-info-row"><strong>Created By:</strong> ${s.createdBy}</div>
           <div class="session-info-row"><strong>Required Players:</strong> ${s.requiredPlayers || 'Not specified'}</div>
+          <div class="session-info-row"><strong>Created By:</strong> ${s.createdBy}</div>
           ${renderTeamInfo(s)}
           ${s.description ? `<div class="session-description-row"><strong>Description:</strong> ${s.description}</div>` : ''}
           <div class="session-actions">
@@ -1086,30 +969,55 @@
         </div>
       `).join('') || "<div style='color:#b8eecb;'>No sessions created yet.</div>";
     }
-
-    function renderCancelledSessions() {
-      const {cancelled} = classifySessions();
-      const container = document.getElementById('cancelled-sessions-list');
-      
-      container.innerHTML = cancelled.map(s => {
-        const playerInfo = s.playerEmails.find(p => p.email === user.email);
-        return `
-          <div class="session-box">
-            <div class="session-title">${s.sport} <span class="session-status cancelled">Cancelled</span></div>
-            <div class="session-info-row"><strong>Venue:</strong> ${s.venue}</div>
-            <div class="session-info-row"><strong>Date:</strong> ${formatDate(s.date)}</div>
-            <div class="session-info-row"><strong>Created By:</strong> ${s.createdBy}</div>
-            <div class="session-info-row"><strong>Required Players:</strong> ${s.requiredPlayers || 'Not specified'}</div>
-            ${renderTeamInfo(s)}
-            ${s.description ? `<div class="session-description-row"><strong>Description:</strong> ${s.description}</div>` : ''}
-            <div class="cancelled-by-row">
-              <strong>Cancelled by you:</strong> ${playerInfo?.cancelReason || 'No reason provided'}
-            </div>
-          </div>
-        `;
-      }).join('') || "<div style='color:#b8eecb;'>No cancelled sessions.</div>";
+function renderCancelledSessions() {
+  const { sessionsICancelled, sessionsICreatedWithCancellations } = classifySessions();
+  const container = document.getElementById('cancelled-sessions-list');
+  
+  // Combine both types of cancelled sessions
+  const allCancelledSessions = [...sessionsICancelled, ...sessionsICreatedWithCancellations];
+  
+  container.innerHTML = allCancelledSessions.map(s => {
+    const isCreator = s.createdBy === user.email;
+    const userPlayer = s.playerEmails.find(p => p.email === user.email);
+    const cancelledPlayers = s.playerEmails.filter(p => p.cancelled);
+    
+    if (isCreator) {
+      // Player created this session, show "Cancelled by Players"
+      return `
+      <div class="session-box">
+        <div class="session-title">${s.sport} <span class="session-status cancelled">Cancelled by Players</span></div>
+        <div class="session-info-row"><strong>Venue:</strong> ${s.venue}</div>
+        ${renderTeamInfo(s)}
+        <div class="session-info-row"><strong>Date:</strong> ${formatDate(s.date)}</div>
+        <div class="session-info-row"><strong>Required Players:</strong> ${s.requiredPlayers || 'Not specified'}</div>
+        ${s.description ? `<div class="session-description-row"><strong>Description:</strong> ${s.description}</div>` : ''}
+        <div class="cancelled-by-row">
+          <strong>Players who cancelled:</strong><br/>
+          ${cancelledPlayers.filter(p => p.email !== user.email).map(p => 
+            `${p.email} (Reason: ${p.cancelReason || "No reason provided"})`
+          ).join('<br/>')}
+        </div>
+      </div>
+      `;
+    } else {
+      // Player cancelled this session, show "Cancelled by me"
+      return `
+      <div class="session-box">
+        <div class="session-title">${s.sport} <span class="session-status cancelled">Cancelled by me</span></div>
+        <div class="session-info-row"><strong>Venue:</strong> ${s.venue}</div>
+        ${renderTeamInfo(s)}
+        <div class="session-info-row"><strong>Date:</strong> ${formatDate(s.date)}</div>
+        <div class="session-info-row"><strong>Required Players:</strong> ${s.requiredPlayers || 'Not specified'}</div>
+        <div class="session-info-row"><strong>Created By:</strong> ${s.createdBy}</div>
+        ${s.description ? `<div class="session-description-row"><strong>Description:</strong> ${s.description}</div>` : ''}
+        <div class="cancelled-by-row">
+          <strong>Your cancellation reason:</strong> ${userPlayer.cancelReason || "No reason provided"}
+        </div>
+      </div>
+      `;
     }
-
+  }).join('') || "<div style='color:#b8eecb;'>No cancelled sessions.</div>";
+}
     function renderTeamInfo(session) {
       let team1Players = Array.isArray(session.team1) ? session.team1 : [];
       let team2Players = Array.isArray(session.team2) ? session.team2 : [];
@@ -1175,7 +1083,7 @@
       }
     }
 
-    // --- MODAL LOGIC FOR CREATE SESSION ---
+    // MODAL LOGIC FOR CREATE SESSION
     function openSessionModal() {
       populateSportsDropdown();
       // Set min date to today
@@ -1286,7 +1194,7 @@
       }
     };
 
-    // --- EDIT SESSION MODAL ---
+    // EDIT SESSION MODAL
     function openEditSessionModal(sessionId) {
       const s = allSessions.find(sess => sess._id === sessionId && sess.createdBy === user.email);
       if (!s) return;
@@ -1392,7 +1300,7 @@
       }
     };
 
-    // --- PROFILE MODAL LOGIC ---
+    // PROFILE MODAL LOGIC
     function toggleProfileModal() {
       const backdrop = document.getElementById('profile-modal-backdrop');
       backdrop.classList.toggle('active');
@@ -1407,7 +1315,7 @@
       window.location.href = '/login.html';
     }
 
-    // --- ON LOAD ---
+    // ON LOAD
     (function init() {
       populateSportsDropdown();
       reloadSessions();
