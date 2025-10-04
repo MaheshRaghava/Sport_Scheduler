@@ -5,81 +5,74 @@ const dotenv = require('dotenv');
 const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
+const cors = require('cors');
 
-// Only load .env file in development
-if (process.env.NODE_ENV !== 'production') {
-  dotenv.config();
-}
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// CORS Configuration
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'https://sport-scheduler11.onrender.com',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
 
 // Middleware
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-// Debug: Check if environment variables are loaded
-console.log('Environment check:');
-console.log('MONGO_URI:', process.env.MONGO_URI ? '✓ Loaded' : '✗ Missing');
-console.log('EMAIL_USER:', process.env.EMAIL_USER ? '✓ Loaded' : '✗ Missing');
-console.log('EMAIL_PASS:', process.env.EMAIL_PASS ? '✓ Loaded' : '✗ Missing');
-console.log('EMAIL_SERVICE:', process.env.EMAIL_SERVICE || 'Not set (using Gmail)');
-console.log('SENDGRID_API_KEY:', process.env.SENDGRID_API_KEY ? '✓ Loaded' : '✗ Missing');
-console.log('EMAIL_FROM:', process.env.EMAIL_FROM || 'Not set');
-console.log('PORT:', process.env.PORT || 'Using default 3000');
+// Request logging
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`);
+  next();
+});
 
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI, { 
   useNewUrlParser: true, 
-  useUnifiedTopology: true 
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000
 })
   .then(() => console.log('MongoDB connected successfully'))
   .catch(err => {
     console.log('MongoDB connection error:', err);
-    console.log('MONGO_URI used:', process.env.MONGO_URI);
+    process.exit(1);
   });
 
 // Models
 const User = require('./models/User');
 
-// Email transporter (for verification & password reset)
-let transporter;
-try {
-  if (process.env.EMAIL_SERVICE === 'sendgrid') {
-    // Using SendGrid
-    transporter = nodemailer.createTransport({
-      host: 'smtp.sendgrid.net',
-      port: 587,
-      auth: {
-        user: 'apikey',
-        pass: process.env.SENDGRID_API_KEY
-      }
-    });
-    console.log('SendGrid email transporter created successfully');
-  } else {
-    // Using Gmail (for local development)
-    transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 465,
-      secure: true,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
-    });
-    console.log('Gmail email transporter created successfully');
-  }
-} catch (error) {
-  console.error('Error creating email transporter:', error);
-}
+// Email transporter - USING ALL .ENV CONFIGURATIONS
+const transporter = nodemailer.createTransport({
+  host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+  port: process.env.EMAIL_PORT || 465,
+  secure: process.env.EMAIL_SECURE === 'true' || true, // Use SSL
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  },
+  connectionTimeout: 10000,
+  greetingTimeout: 10000,
+  socketTimeout: 10000
+});
 
-// Global error handler middleware
-app.use((error, req, res, next) => {
-  console.error("Unhandled Error:", error.stack);
-  res.status(500).json({ 
-    message: "Internal Server Error", 
-    error: process.env.NODE_ENV === 'production' ? 'Something went wrong' : error.message 
+console.log('Email transporter created with configuration:');
+console.log('Host:', process.env.EMAIL_HOST || 'smtp.gmail.com');
+console.log('Port:', process.env.EMAIL_PORT || 465);
+console.log('Secure:', process.env.EMAIL_SECURE === 'true' || true);
+
+// Health Check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'healthy', 
+    timestamp: new Date().toISOString(),
+    service: process.env.PROJECT_NAME || 'Sport Scheduler',
+    environment: process.env.NODE_ENV || 'development'
   });
 });
 
@@ -96,7 +89,7 @@ app.get('/verify-email', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'emailverify.html'));
 });
 
-// Email Verification (standalone for frontend compatibility)
+// Email Verification
 app.post('/verify-email', async (req, res) => {
   try {
     const { email, code } = req.body;
@@ -116,7 +109,7 @@ app.post('/verify-email', async (req, res) => {
   }
 });
 
-// Forgot/Reset Password (standalone for frontend compatibility)
+// Forgot/Reset Password
 app.post('/forgot-password', async (req, res) => {
   try {
     const { email } = req.body;
@@ -126,13 +119,13 @@ app.post('/forgot-password', async (req, res) => {
     // Generate reset token
     const token = crypto.randomBytes(32).toString('hex');
     user.resetToken = token;
-    user.resetTokenExpiry = Date.now() + 15 * 60 * 1000; // 15 minutes
+    user.resetTokenExpiry = Date.now() + 15 * 60 * 1000;
     await user.save();
 
-    const resetLink = `https://sport-scheduler11.onrender.com/reset-password.html?token=${token}&email=${email}`;
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password.html?token=${token}&email=${email}`;
 
     const mailOptions = {
-      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+      from: process.env.EMAIL_USER,
       to: email,
       subject: 'Password Reset - Sport Scheduler',
       html: `
@@ -179,7 +172,7 @@ app.post('/reset-password', async (req, res) => {
   }
 });
 
-// Custom Signup: uses email verification logic here for compatibility
+// Custom Signup
 app.post('/signup', async (req, res) => {
   try {
     const { fullname, email, password } = req.body;
@@ -209,9 +202,8 @@ app.post('/signup', async (req, res) => {
     app.locals.verificationCodes = app.locals.verificationCodes || {};
     app.locals.verificationCodes[email] = verificationCode;
 
-    // Professional email template
     const mailOptions = {
-      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+      from: process.env.EMAIL_USER,
       to: email,
       subject: 'Sport Scheduler: Email Verification',
       html: `
@@ -228,31 +220,21 @@ app.post('/signup', async (req, res) => {
       `
     };
 
-    transporter.sendMail(mailOptions, async (err) => {
+    transporter.sendMail(mailOptions, (err) => {
       if (err) {
-        console.error('SendGrid email error:', err.message);
-        
-        // If it's a sender verification error, auto-verify the user temporarily
-        if (err.response && err.response.includes('verified Sender Identity')) {
-          console.log('SendGrid sender not verified, auto-verifying user for testing');
-          await User.updateOne({ email }, { isVerified: true });
-          return res.status(200).json({ 
-            message: 'Signup successful! Please verify your email in SendGrid dashboard. You can now login.' 
-          });
-        }
-        
-        return res.status(500).json({ message: 'Error sending verification email: ' + err.message });
+        console.error('Signup email error:', err);
+        return res.status(500).json({ message: 'Error sending email: ' + err.message });
       }
       res.status(200).json({ message: 'Signup successful, verification email sent' });
     });
 
   } catch (error) {
     console.error('Signup error:', error);
-    res.status(500).json({ message: 'Server error during signup: ' + error.message });
+    res.status(500).json({ message: 'Server error: ' + error.message });
   }
 });
 
-// --- Custom Login: for direct compatibility ---
+// Login
 app.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -264,14 +246,21 @@ app.post('/login', async (req, res) => {
     const isMatch = await require('bcryptjs').compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: 'Incorrect password' });
 
-    res.status(200).json({ message: 'Login successful', user: { fullname: user.fullname, email: user.email, role: user.role } });
+    res.status(200).json({ 
+      message: 'Login successful', 
+      user: { 
+        fullname: user.fullname, 
+        email: user.email, 
+        role: user.role 
+      } 
+    });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ message: 'Server error during login' });
   }
 });
 
-// --- API ROUTES ---
+// API ROUTES
 const userRoutes = require('./routes/users');
 const sportRoutes = require('./routes/sports');
 const sessionRoutes = require('./routes/sessions');
@@ -280,8 +269,42 @@ app.use('/api/users', userRoutes);
 app.use('/api/sports', sportRoutes);
 app.use('/api/sessions', sessionRoutes);
 
-// --- START SERVER ---
-app.listen(PORT, () => {
+// 404 Handler
+app.use((req, res) => {
+  res.status(404).json({ success: false, error: 'Not Found' });
+});
+
+// Error Handler
+app.use((err, req, res, next) => {
+  console.error('Server Error:', err);
+  res.status(500).json({ 
+    success: false,
+    error: 'Internal Server Error',
+    details: process.env.NODE_ENV === 'development' ? err.message : undefined
+  });
+});
+
+// Start Server
+const server = app.listen(PORT, () => {
   console.log(`Server running successfully on port ${PORT}`);
-  console.log(`Available at: https://sport-scheduler11.onrender.com`);
+  console.log(`Available at: ${process.env.FRONTEND_URL || `http://localhost:${PORT}`}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`Project: ${process.env.PROJECT_NAME || 'Sport Scheduler'}`);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received, shutting down gracefully');
+  server.close(() => {
+    mongoose.connection.close(false);
+    console.log('Server shut down');
+  });
+});
+
+process.on('SIGINT', () => {
+  console.log('SIGINT received, shutting down gracefully');
+  server.close(() => {
+    mongoose.connection.close(false);
+    console.log('Server shut down');
+  });
 });
