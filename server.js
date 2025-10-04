@@ -9,7 +9,8 @@ const crypto = require('crypto');
 dotenv.config();
 
 const app = express();
-const PORT = 3000;
+//const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(express.static(path.join(__dirname, 'public')));
@@ -74,7 +75,8 @@ app.post('/forgot-password', async (req, res) => {
     user.resetTokenExpiry = Date.now() + 15 * 60 * 1000; // 15 minutes
     await user.save();
 
-    const resetLink = `http://localhost:${PORT}/reset-password.html?token=${token}&email=${email}`;
+    //const resetLink = `http://localhost:${PORT}/reset-password.html?token=${token}&email=${email}`;
+    const resetLink = `https://sport-scheduler11.onrender.com/reset-password.html?token=${token}&email=${email}`;
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
