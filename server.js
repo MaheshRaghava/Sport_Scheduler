@@ -195,6 +195,12 @@ app.use('/api/users', userRoutes);
 app.use('/api/sports', sportRoutes);
 app.use('/api/sessions', sessionRoutes);
 
+app.use((err, req, res, next) => {
+  console.error("Error:", err.stack);
+  res.status(500).json({ message: "Internal Server Error", error: err.message });
+});
+
+
 // --- START SERVER ---
 app.listen(PORT, () => {
   console.log(`Server running successfully at http://localhost:${PORT}`);
