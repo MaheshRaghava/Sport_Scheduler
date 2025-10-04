@@ -24,6 +24,9 @@ console.log('Environment check:');
 console.log('MONGO_URI:', process.env.MONGO_URI ? '✓ Loaded' : '✗ Missing');
 console.log('EMAIL_USER:', process.env.EMAIL_USER ? '✓ Loaded' : '✗ Missing');
 console.log('EMAIL_PASS:', process.env.EMAIL_PASS ? '✓ Loaded' : '✗ Missing');
+console.log('EMAIL_SERVICE:', process.env.EMAIL_SERVICE || 'Not set (using Gmail)');
+console.log('SENDGRID_API_KEY:', process.env.SENDGRID_API_KEY ? '✓ Loaded' : '✗ Missing');
+console.log('EMAIL_FROM:', process.env.EMAIL_FROM || 'Not set');
 console.log('PORT:', process.env.PORT || 'Using default 3000');
 
 // MongoDB connection
@@ -40,19 +43,33 @@ mongoose.connect(process.env.MONGO_URI, {
 // Models
 const User = require('./models/User');
 
-// Email transporter (for verification & password reset)
+// Email transporter (for verification & password reset) - UPDATED WITH SENDGRID
 let transporter;
 try {
-  transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS
-    }
-  });
-  console.log('Email transporter created successfully with SSL');
+  if (process.env.EMAIL_SERVICE === 'sendgrid') {
+    // Using SendGrid
+    transporter = nodemailer.createTransport({
+      host: 'smtp.sendgrid.net',
+      port: 587,
+      auth: {
+        user: 'apikey',
+        pass: process.env.SENDGRID_API_KEY
+      }
+    });
+    console.log('SendGrid email transporter created successfully');
+  } else {
+    // Using Gmail (for local development)
+    transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
+    console.log('Gmail email transporter created successfully');
+  }
 } catch (error) {
   console.error('Error creating email transporter:', error);
 }
@@ -115,7 +132,7 @@ app.post('/forgot-password', async (req, res) => {
     const resetLink = `https://sport-scheduler11.onrender.com/reset-password.html?token=${token}&email=${email}`;
 
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
       to: email,
       subject: 'Password Reset - Sport Scheduler',
       html: `
@@ -192,9 +209,9 @@ app.post('/signup', async (req, res) => {
     app.locals.verificationCodes = app.locals.verificationCodes || {};
     app.locals.verificationCodes[email] = verificationCode;
 
-    // Professional email template
+    // Email template
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
       to: email,
       subject: 'Sport Scheduler: Email Verification',
       html: `
