@@ -44,13 +44,15 @@ const User = require('./models/User');
 let transporter;
 try {
   transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS
     }
   });
-  console.log('Email transporter created successfully');
+  console.log('Email transporter created successfully with SSL');
 } catch (error) {
   console.error('Error creating email transporter:', error);
 }
