@@ -131,7 +131,7 @@
       resendLink.addEventListener('click', async (e) => {
         e.preventDefault();
         try {
-          const res = await fetch('/api/users/resend-code', {
+          const res = await fetch('/resend-verification', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: userEmail })
